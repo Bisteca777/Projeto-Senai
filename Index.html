@@ -1811,6 +1811,11 @@
                     <input class="form-input" type="text" id="ra" name="ra" placeholder="Ex: 12345678" />
                     <span class="form-hint">Obrigatório para denúncia identificada</span>
                   </div>
+                  <div class="form-group">
+                    <label class="form-label" for="email-denunciante">Seu E-mail <span class="req">*</span></label>
+                    <input class="form-input" type="email" id="email-denunciante" name="email-denunciante" placeholder="seuemail@exemplo.com" />
+                    <span class="form-hint">Você receberá uma confirmação da denúncia neste e-mail</span>
+                  </div>
                   <div class="form-group full">
                     <label class="form-label" for="turma">Turma <span class="req">*</span></label>
                     <select class="form-select" id="turma" name="turma">
@@ -2096,17 +2101,73 @@
        SCRIPTS
   ════════════════════════════════════════ -->
   <script>
-    // ── CONFIG ───────────────────────────────────
-    const SENHA_PAINEL   = 'Senai@2026!';
-    const EMAIL_DESTINO  = 'lh221534@gmail.com';
+    // ══════════════════════════════════════════
+    // CONFIG
+    // ══════════════════════════════════════════
+    const SENHA_PAINEL  = 'Senai@2026!';
 
-    // EmailJS — configure com suas credenciais em https://emailjs.com
-    // Substitua os valores abaixo após criar sua conta gratuita:
-    const EMAILJS_SERVICE_ID  = 'service_86eftrh';
-    const EMAILJS_TEMPLATE_ID = 'template_shiwghn';
-    const EMAILJS_PUBLIC_KEY  = 'NdAzWofZxLC1wOsfK';
+    // JSONBin — banco de dados na nuvem
+    const JSONBIN_BIN_ID  = '69cf0af5856a682189f4f116';
+    const JSONBIN_API_KEY = '$2a$10$K3umiXjDxJc.7/pRoimZPeKd4AsHd5NOCLIAzfIPBAepaQVGglrF2';
+    const JSONBIN_URL     = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
-    // ── Navegação entre páginas ──────────────────
+    // EmailJS
+    const EMAILJS_SERVICE_ID           = 'service_86eftrh';
+    const EMAILJS_TEMPLATE_ID          = 'template_shiwghn'; // pedagógico
+    const EMAILJS_TEMPLATE_CONFIRMACAO = 'template_izis2qp'; // confirmação aluno
+    const EMAILJS_PUBLIC_KEY           = 'NdAzWofZxLC1wOsfK';
+
+    // E-mail fixo da equipe pedagógica
+    const EMAIL_PEDAGOGICO = 'lh221534@gmail.com';
+
+    // ══════════════════════════════════════════
+    // EMAILJS INIT
+    // ══════════════════════════════════════════
+    (function() {
+      try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) {}
+    })();
+
+    // ══════════════════════════════════════════
+    // JSONBIN — leitura e escrita
+    // ══════════════════════════════════════════
+    async function dbGetReports() {
+      try {
+        const res = await fetch(JSONBIN_URL + '/latest', {
+          headers: { 'X-Master-Key': JSONBIN_API_KEY }
+        });
+        const json = await res.json();
+        return Array.isArray(json.record) ? json.record : [];
+      } catch(e) {
+        console.error('Erro ao carregar denúncias:', e);
+        return [];
+      }
+    }
+
+    async function dbSaveReports(arr) {
+      try {
+        await fetch(JSONBIN_URL, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': JSONBIN_API_KEY
+          },
+          body: JSON.stringify(arr)
+        });
+      } catch(e) {
+        console.error('Erro ao salvar denúncias:', e);
+      }
+    }
+
+    async function dbAddReport(report) {
+      const reports = await dbGetReports();
+      reports.push(report);
+      await dbSaveReports(reports);
+      return reports;
+    }
+
+    // ══════════════════════════════════════════
+    // NAVEGAÇÃO
+    // ══════════════════════════════════════════
     let currentPage = 'home';
 
     function showPage(pageId) {
@@ -2116,6 +2177,17 @@
       updateNavActive(pageId);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       setTimeout(observeReveal, 120);
+      if (pageId === 'painel') {
+        if (painelAutenticado) {
+          document.getElementById('login-screen').style.display = 'none';
+          document.getElementById('painel-principal').classList.add('visible');
+          carregarPainel();
+        } else {
+          document.getElementById('login-screen').style.display = '';
+          document.getElementById('painel-principal').classList.remove('visible');
+          setTimeout(() => document.getElementById('login-senha').focus(), 200);
+        }
+      }
     }
 
     function updateNavActive(pageId) {
@@ -2125,7 +2197,9 @@
       });
     }
 
-    // ── Hamburger menu ───────────────────────────
+    // ══════════════════════════════════════════
+    // HAMBURGER
+    // ══════════════════════════════════════════
     let mobileOpen = false;
     function toggleMobile() {
       mobileOpen = !mobileOpen;
@@ -2133,11 +2207,13 @@
       document.getElementById('hamburger').classList.toggle('open', mobileOpen);
     }
 
-    // ── Toggle Anônimo ───────────────────────────
+    // ══════════════════════════════════════════
+    // TOGGLE ANÔNIMO
+    // ══════════════════════════════════════════
     let isAnon = false;
     function toggleAnon() {
       isAnon = !isAnon;
-      const check = document.getElementById('anon-check');
+      const check  = document.getElementById('anon-check');
       const toggle = document.getElementById('anon-toggle');
       const fields = document.getElementById('identif-fields');
       check.checked = isAnon;
@@ -2151,69 +2227,154 @@
       }
     }
 
-    // ── Submit Formulário ────────────────────────
-    function submitForm(e) {
+    // ══════════════════════════════════════════
+    // SUBMIT FORMULÁRIO
+    // ══════════════════════════════════════════
+    async function submitForm(e) {
       e.preventDefault();
 
-      // Validação: RA e turma obrigatórios se não anônimo
+      // Validação campos identificados
       if (!isAnon) {
-        const ra = document.getElementById('ra').value.trim();
+        const ra    = document.getElementById('ra').value.trim();
         const turma = document.getElementById('turma').value;
+        const email = document.getElementById('email-denunciante').value.trim();
+
         if (!ra) {
-          document.getElementById('ra').focus();
-          document.getElementById('ra').style.borderColor = 'var(--alerta)';
-          document.getElementById('ra').style.boxShadow = '0 0 0 3px rgba(220,38,38,.15)';
-          setTimeout(() => {
-            document.getElementById('ra').style.borderColor = '';
-            document.getElementById('ra').style.boxShadow = '';
-          }, 3000);
-          return;
+          destacarErro('ra'); return;
         }
         if (!turma) {
-          document.getElementById('turma').focus();
-          document.getElementById('turma').style.borderColor = 'var(--alerta)';
-          document.getElementById('turma').style.boxShadow = '0 0 0 3px rgba(220,38,38,.15)';
-          setTimeout(() => {
-            document.getElementById('turma').style.borderColor = '';
-            document.getElementById('turma').style.boxShadow = '';
-          }, 3000);
-          return;
+          destacarErro('turma'); return;
+        }
+        if (!email || !email.includes('@')) {
+          destacarErro('email-denunciante'); return;
         }
       }
 
-      const form = e.target;
+      // Desabilitar botão durante envio
+      const btnSubmit = e.target.querySelector('button[type="submit"]');
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          style="width:17px;height:17px;animation:spin 1s linear infinite">
+          <circle cx="12" cy="12" r="10" stroke-opacity=".3"/>
+          <path d="M12 2a10 10 0 0 1 10 10"/>
+        </svg>
+        Enviando...`;
+
+      const emailDenunciante = isAnon ? null : document.getElementById('email-denunciante').value.trim();
+
       const report = {
-        nome:            isAnon ? null : document.getElementById('nome').value,
-        ra:              isAnon ? null : document.getElementById('ra').value,
+        id:              Date.now().toString(36).toUpperCase(),
+        nome:            isAnon ? null : document.getElementById('nome').value.trim() || null,
+        ra:              isAnon ? null : document.getElementById('ra').value.trim(),
         turma:           isAnon ? null : document.getElementById('turma').value,
+        email:           emailDenunciante,
         anonimo:         isAnon,
         local:           document.getElementById('local').value,
         data_ocorrencia: document.getElementById('data').value,
-        envolvido:       document.getElementById('envolvidos').value,
-        descricao:       document.getElementById('descricao').value,
+        envolvido:       document.getElementById('envolvidos').value.trim() || null,
+        descricao:       document.getElementById('descricao').value.trim(),
         status:          'pendente',
         timestamp:       new Date().toISOString(),
       };
 
-      // Salvar no localStorage (simulando banco de dados)
-      const reports = JSON.parse(localStorage.getItem('voxsegura_reports') || '[]');
-      reports.push(report);
-      localStorage.setItem('voxsegura_reports', JSON.stringify(reports));
+      try {
+        // 1. Salvar no JSONBin
+        await dbAddReport(report);
 
-      // Enviar e-mail de alerta
-      enviarEmailAlerta(report);
+        // 2. E-mail para a equipe pedagógica
+        enviarEmailPedagogico(report);
 
-      form.reset();
-      isAnon = false;
-      document.getElementById('anon-check').checked = false;
-      document.getElementById('anon-toggle').classList.remove('active');
-      document.getElementById('identif-fields').classList.remove('hidden');
-      document.getElementById('identif-fields').classList.add('visible');
-      document.getElementById('turma').value = '';
+        // 3. E-mail de confirmação para o denunciante (se não anônimo)
+        if (!isAnon && emailDenunciante) {
+          enviarEmailConfirmacao(report, emailDenunciante);
+        }
 
-      showToast();
+        // Reset form
+        e.target.reset();
+        isAnon = false;
+        document.getElementById('anon-check').checked = false;
+        document.getElementById('anon-toggle').classList.remove('active');
+        document.getElementById('identif-fields').classList.remove('hidden');
+        document.getElementById('identif-fields').classList.add('visible');
+        document.getElementById('turma').value = '';
+
+        showToast();
+      } catch(err) {
+        console.error('Erro ao enviar:', err);
+        alert('Ocorreu um erro ao enviar a denúncia. Tente novamente.');
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:17px;height:17px">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+          Enviar Denúncia`;
+      }
     }
 
+    function destacarErro(id) {
+      const el = document.getElementById(id);
+      el.focus();
+      el.style.borderColor = 'var(--alerta)';
+      el.style.boxShadow   = '0 0 0 3px rgba(220,38,38,.15)';
+      setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 3000);
+    }
+
+    // ══════════════════════════════════════════
+    // EMAILJS — envio de e-mails
+    // ══════════════════════════════════════════
+    function fmtData(iso) {
+      if (!iso) return '—';
+      return new Date(iso + 'T00:00:00').toLocaleDateString('pt-BR');
+    }
+
+    // E-mail para a equipe pedagógica
+    function enviarEmailPedagogico(report) {
+      const params = {
+        to_email:        EMAIL_PEDAGOGICO,
+        to_name:         'Equipe Pedagógica SENAI',
+        tipo_email:      'ALERTA — Nova Denúncia Recebida',
+        report_id:       report.id,
+        anonimo:         report.anonimo ? 'Sim (anônima)' : 'Não',
+        nome:            report.nome    || '—',
+        ra:              report.ra      || '—',
+        turma:           report.turma   || '—',
+        email_aluno:     report.email   || '—',
+        local:           report.local   || '—',
+        data_ocorrencia: fmtData(report.data_ocorrencia),
+        envolvido:       report.envolvido || '—',
+        descricao:       report.descricao || '—',
+        status:          'Pendente',
+        timestamp:       new Date(report.timestamp).toLocaleString('pt-BR'),
+        reply_to:        report.email   || EMAIL_PEDAGOGICO,
+      };
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
+        .then(() => console.log('📧 Alerta enviado à equipe pedagógica'))
+        .catch(err => console.error('EmailJS erro:', JSON.stringify(err)));
+    }
+
+    function enviarEmailConfirmacao(report, emailDestino) {
+      const params = {
+        email_aluno:     emailDestino,
+        nome:            report.nome    || 'Aluno',
+        report_id:       report.id,
+        turma:           report.turma   || '—',
+        ra:              report.ra      || '—',
+        local:           report.local   || '—',
+        data_ocorrencia: fmtData(report.data_ocorrencia),
+        descricao:       report.descricao || '—',
+        status:          'Pendente',
+        timestamp:       new Date(report.timestamp).toLocaleString('pt-BR'),
+      };
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONFIRMACAO, params)
+        .then(() => console.log('📧 Confirmação enviada para', emailDestino))
+        .catch(err => console.error('EmailJS (confirmação) erro:', JSON.stringify(err)));
+    }
+
+    // ══════════════════════════════════════════
+    // TOAST
+    // ══════════════════════════════════════════
     function showToast() {
       const toast = document.getElementById('toast');
       toast.style.display = 'flex';
@@ -2221,10 +2382,12 @@
       setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => { toast.style.display = 'none'; }, 300);
-      }, 4500);
+      }, 5000);
     }
 
-    // ── Scroll Reveal ────────────────────────────
+    // ══════════════════════════════════════════
+    // SCROLL REVEAL
+    // ══════════════════════════════════════════
     function observeReveal() {
       const items = document.querySelectorAll('#page-' + currentPage + ' .reveal:not(.visible)');
       const obs = new IntersectionObserver((entries) => {
@@ -2238,61 +2401,34 @@
       items.forEach(el => obs.observe(el));
     }
 
-    // ── Init ─────────────────────────────────────
+    // ══════════════════════════════════════════
+    // INIT
+    // ══════════════════════════════════════════
     document.addEventListener('DOMContentLoaded', () => {
-      // Set today's date as max for date input
       const today = new Date().toISOString().split('T')[0];
       const dateInput = document.getElementById('data');
       if (dateInput) { dateInput.max = today; dateInput.value = today; }
-
       updateNavActive('home');
       observeReveal();
     });
 
+    // Animação spinner no botão
+    const spinStyle = document.createElement('style');
+    spinStyle.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+    document.head.appendChild(spinStyle);
+
     // Navbar scroll shadow
     window.addEventListener('scroll', () => {
       const nav = document.getElementById('navbar');
-      nav.style.boxShadow = window.scrollY > 10
-        ? '0 4px 24px rgba(0,0,0,.25)'
-        : 'none';
+      nav.style.boxShadow = window.scrollY > 10 ? '0 4px 24px rgba(0,0,0,.25)' : 'none';
     });
 
-    // ── EmailJS Init ─────────────────────────────
-    (function() {
-      try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) {}
-    })();
-
-    function enviarEmailAlerta(report) {
-      const linhaId   = `#${Date.now().toString(36).toUpperCase()}`;
-      const dataFmt   = report.data_ocorrencia
-        ? new Date(report.data_ocorrencia + 'T00:00:00').toLocaleDateString('pt-BR')
-        : '—';
-      const params = {
-        to_email:       EMAIL_DESTINO,
-        report_id:      linhaId,
-        anonimo:        report.anonimo ? 'Sim (anônima)' : 'Não',
-        nome:           report.nome   || '—',
-        ra:             report.ra     || '—',
-        turma:          report.turma  || '—',
-        local:          report.local  || '—',
-        data_ocorrencia: dataFmt,
-        envolvido:      report.envolvido || '—',
-        descricao:      report.descricao || '—',
-        status:         'Pendente',
-        timestamp:      new Date(report.timestamp).toLocaleString('pt-BR'),
-      };
-      try {
-        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
-          .then(() => console.log('📧 E-mail enviado para', EMAIL_DESTINO))
-          .catch(err => console.warn('EmailJS erro:', err));
-      } catch(e) {
-        console.warn('EmailJS não configurado:', e);
-      }
-    }
-
-    // ── LOGIN / PAINEL ───────────────────────────
+    // ══════════════════════════════════════════
+    // PAINEL — LOGIN
+    // ══════════════════════════════════════════
     let painelAutenticado = false;
     let modalIndex = null;
+    let _todosReports = [];
 
     function tentarLogin() {
       const senha = document.getElementById('login-senha').value;
@@ -2302,7 +2438,7 @@
         erro.classList.remove('show');
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('painel-principal').classList.add('visible');
-        renderTabela();
+        carregarPainel();
       } else {
         erro.classList.add('show');
         document.getElementById('login-senha').value = '';
@@ -2319,12 +2455,23 @@
       showPage('home');
     }
 
-    // ── RENDER TABELA ────────────────────────────
-    function getReports() {
-      return JSON.parse(localStorage.getItem('voxsegura_reports') || '[]');
-    }
-    function saveReports(arr) {
-      localStorage.setItem('voxsegura_reports', JSON.stringify(arr));
+    // ══════════════════════════════════════════
+    // PAINEL — CARREGAR / RENDER
+    // ══════════════════════════════════════════
+    async function carregarPainel() {
+      const container = document.getElementById('painel-table-container');
+      container.innerHTML = `
+        <div class="painel-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            style="animation:spin 1s linear infinite">
+            <circle cx="12" cy="12" r="10" stroke-opacity=".3"/>
+            <path d="M12 2a10 10 0 0 1 10 10"/>
+          </svg>
+          <h3>Carregando denúncias...</h3>
+          <p>Buscando dados no banco de dados.</p>
+        </div>`;
+      _todosReports = await dbGetReports();
+      renderTabela();
     }
 
     const statusLabel = {
@@ -2344,13 +2491,13 @@
     }
 
     function renderTabela() {
-      const all    = getReports();
-      const fSt    = document.getElementById('filter-status').value;
-      const fAnon  = document.getElementById('filter-anon').value;
+      const all   = _todosReports;
+      const fSt   = document.getElementById('filter-status').value;
+      const fAnon = document.getElementById('filter-anon').value;
 
-      let filtered = all.filter(r => {
-        if (fSt   && r.status !== fSt)                   return false;
-        if (fAnon && String(r.anonimo) !== fAnon)        return false;
+      const filtered = all.filter(r => {
+        if (fSt   && r.status !== fSt)              return false;
+        if (fAnon && String(r.anonimo) !== fAnon)   return false;
         return true;
       });
 
@@ -2363,15 +2510,15 @@
       if (filtered.length === 0) {
         container.innerHTML = `
           <div class="painel-empty">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0
+                01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
             <h3>Nenhuma denúncia encontrada</h3>
             <p>Não há registros com os filtros selecionados.</p>
           </div>`;
         return;
       }
-
-      // Índices globais para o modal
-      window._filteredReports = filtered.map(f => all.indexOf(f));
 
       container.innerHTML = `
         <table class="painel-table">
@@ -2389,29 +2536,47 @@
           <tbody>
             ${filtered.map((r, i) => {
               const globalIdx = all.indexOf(r);
-              const dataFmt = r.data_ocorrencia
-                ? new Date(r.data_ocorrencia + 'T00:00:00').toLocaleDateString('pt-BR')
-                : '—';
+              const dataFmt     = fmtData(r.data_ocorrencia);
               const registroFmt = r.timestamp
-                ? new Date(r.timestamp).toLocaleDateString('pt-BR')
-                : '—';
+                ? new Date(r.timestamp).toLocaleDateString('pt-BR') : '—';
               return `
               <tr>
-                <td><strong style="color:var(--azul);font-family:Montserrat,sans-serif">${String(i+1).padStart(3,'0')}</strong><div class="sub">${registroFmt}</div></td>
+                <td>
+                  <strong style="color:var(--azul);font-family:Montserrat,sans-serif">
+                    ${String(i+1).padStart(3,'0')}
+                  </strong>
+                  <div class="sub">${registroFmt}</div>
+                </td>
                 <td>${dataFmt}</td>
                 <td>
                   ${r.anonimo
-                    ? '<span class="anon-badge sim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>Anônimo</span>'
-                    : '<span class="anon-badge nao"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Identificado</span>'
+                    ? `<span class="anon-badge sim">
+                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                           style="width:10px;height:10px">
+                           <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45
+                             18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11
+                             8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+                           <line x1="1" y1="1" x2="23" y2="23"/>
+                         </svg>Anônimo</span>`
+                    : `<span class="anon-badge nao">
+                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                           style="width:10px;height:10px">
+                           <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                           <circle cx="12" cy="7" r="4"/>
+                         </svg>Identificado</span>`
                   }
                 </td>
                 <td>
-                  ${r.anonimo ? '<span style="color:var(--cinza-medio);font-size:.82rem">—</span>' : `
-                    <strong style="font-size:.88rem">${r.nome || '—'}</strong>
-                    <div class="sub">RA: ${r.ra || '—'} · ${r.turma || '—'}</div>
-                  `}
+                  ${r.anonimo
+                    ? '<span style="color:var(--cinza-medio);font-size:.82rem">—</span>'
+                    : `<strong style="font-size:.88rem">${r.nome || '—'}</strong>
+                       <div class="sub">RA: ${r.ra || '—'} · ${r.turma || '—'}</div>
+                       <div class="sub" style="color:var(--azul-claro)">${r.email || ''}</div>`
+                  }
                 </td>
-                <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.local || '—'}</td>
+                <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                  ${r.local || '—'}
+                </td>
                 <td>
                   <span class="status-badge ${r.status || 'pendente'}">
                     <div class="dot"></div>
@@ -2420,7 +2585,10 @@
                 </td>
                 <td>
                   <button class="action-btn ver" onclick="abrirModal(${globalIdx})">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
                     Ver
                   </button>
                 </td>
@@ -2430,20 +2598,18 @@
         </table>`;
     }
 
-    // ── MODAL ────────────────────────────────────
+    // ══════════════════════════════════════════
+    // PAINEL — MODAL
+    // ══════════════════════════════════════════
     function abrirModal(globalIdx) {
       modalIndex = globalIdx;
-      const all = getReports();
-      const r   = all[globalIdx];
+      const r = _todosReports[globalIdx];
       if (!r) return;
-
-      const dataFmt = r.data_ocorrencia
-        ? new Date(r.data_ocorrencia + 'T00:00:00').toLocaleDateString('pt-BR')
-        : '—';
 
       document.getElementById('modal-title').textContent = 'Detalhes da Denúncia';
       document.getElementById('modal-subtitle').textContent =
-        `Registrada em ${r.timestamp ? new Date(r.timestamp).toLocaleString('pt-BR') : '—'}`;
+        `ID: ${r.id || '—'} · Registrada em ${r.timestamp
+          ? new Date(r.timestamp).toLocaleString('pt-BR') : '—'}`;
 
       document.getElementById('modal-body').innerHTML = `
         <div class="modal-row">
@@ -2453,7 +2619,9 @@
           </div>
           <div class="modal-field">
             <label>Status Atual</label>
-            <p><span class="status-badge ${r.status}"><div class="dot"></div>${statusLabel[r.status] || '—'}</span></p>
+            <p><span class="status-badge ${r.status}">
+              <div class="dot"></div>${statusLabel[r.status] || '—'}
+            </span></p>
           </div>
         </div>
         ${!r.anonimo ? `
@@ -2466,9 +2634,15 @@
             <label>RA</label>
             <p>${r.ra || '—'}</p>
           </div>
-          <div class="modal-field full">
+        </div>
+        <div class="modal-row">
+          <div class="modal-field">
             <label>Turma</label>
             <p>${r.turma || '—'}</p>
+          </div>
+          <div class="modal-field">
+            <label>E-mail do Aluno</label>
+            <p style="color:var(--azul-claro)">${r.email || '—'}</p>
           </div>
         </div>` : ''}
         <div class="modal-row">
@@ -2478,7 +2652,7 @@
           </div>
           <div class="modal-field">
             <label>Data da Ocorrência</label>
-            <p>${dataFmt}</p>
+            <p>${fmtData(r.data_ocorrencia)}</p>
           </div>
         </div>
         <div class="modal-row">
@@ -2506,38 +2680,35 @@
       modalIndex = null;
     }
 
-    function salvarStatus() {
+    async function salvarStatus() {
       if (modalIndex === null) return;
-      const all     = getReports();
-      const novoSt  = document.getElementById('modal-status-select').value;
-      all[modalIndex].status = novoSt;
-      saveReports(all);
+      const btn = document.getElementById('modal-overlay').querySelector('.btn-save-status');
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
+
+      _todosReports[modalIndex].status = document.getElementById('modal-status-select').value;
+      await dbSaveReports(_todosReports);
+
+      btn.disabled = false;
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          style="width:14px;height:14px">
+          <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/>
+          <polyline points="7 3 7 8 15 8"/>
+        </svg>
+        Salvar Status`;
+
       fecharModalBtn();
       renderTabela();
     }
 
-    function limparDados() {
+    async function limparDados() {
       if (!confirm('Tem certeza que deseja apagar TODAS as denúncias? Esta ação não pode ser desfeita.')) return;
-      localStorage.removeItem('voxsegura_reports');
+      _todosReports = [];
+      await dbSaveReports([]);
       renderTabela();
     }
-
-    // ── Painel: mostrar se já autenticado ────────
-    const _origShow = showPage;
-    window.showPage = function(pageId) {
-      _origShow(pageId);
-      if (pageId === 'painel') {
-        if (painelAutenticado) {
-          document.getElementById('login-screen').style.display    = 'none';
-          document.getElementById('painel-principal').classList.add('visible');
-          renderTabela();
-        } else {
-          document.getElementById('login-screen').style.display    = '';
-          document.getElementById('painel-principal').classList.remove('visible');
-          setTimeout(() => document.getElementById('login-senha').focus(), 200);
-        }
-      }
-    };
   </script>
 </body>
 </html>
