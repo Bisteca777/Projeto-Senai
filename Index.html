@@ -1886,13 +1886,15 @@
                     <option>Refeitório / Cantina</option>
                     <option>Banheiro</option>
                     <option>Pátio / Área Externa</option>
-                    <option>Ambiente Online / Redes Sociais</option> 
+                    <option>Ambiente Online / Redes Sociais</option>
                     <option>Outro</option>
                   </select>
                 </div>
                 <div class="form-group">
                   <label class="form-label" for="data">Data da Ocorrência <span class="req">*</span></label>
-                  <input class="form-input" type="date" id="data" name="data" required />
+                  <input class="form-input" type="date" id="data" name="data" required
+                    min="2026-01-01" />
+                  <span class="form-hint">Apenas datas a partir de 01/01/2026</span>
                 </div>
                 <div class="form-group full">
                   <label class="form-label" for="envolvidos">Pessoas Envolvidas</label>
@@ -1903,6 +1905,54 @@
                   <label class="form-label" for="descricao">Descrição da Ocorrência <span class="req">*</span></label>
                   <textarea class="form-textarea" id="descricao" name="descricao" required placeholder="Descreva com detalhes o que aconteceu: o tipo de bullying, como ocorreu, com que frequência, se há evidências (prints, fotos, vídeos) e qualquer informação relevante..."></textarea>
                   <span class="form-hint">Seja o mais detalhado possível. Isso ajuda a equipe a agir com mais eficiência.</span>
+                </div>
+
+                <!-- UPLOAD DE ARQUIVOS -->
+                <div class="form-group full">
+                  <label class="form-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline;margin-right:4px;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    Evidências — Fotos / Vídeos
+                    <span style="color:var(--cinza-medio);font-weight:400">(opcional)</span>
+                  </label>
+
+                  <!-- Área de drop -->
+                  <div id="upload-area" onclick="document.getElementById('arquivo-input').click()"
+                    style="border:2px dashed var(--cinza-borda);border-radius:12px;padding:1.5rem;
+                           text-align:center;cursor:pointer;transition:var(--transition);background:var(--cinza-claro);"
+                    ondragover="event.preventDefault();this.style.borderColor='var(--azul)'"
+                    ondragleave="this.style.borderColor='var(--cinza-borda)'"
+                    ondrop="handleDrop(event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                      style="width:36px;height:36px;color:var(--cinza-medio);margin:0 auto .5rem">
+                      <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0
+                        012.828 0L20 16M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0
+                        00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <p style="font-size:.85rem;color:var(--cinza-medio);margin:0">
+                      Clique ou arraste arquivos aqui
+                    </p>
+                    <p style="font-size:.75rem;color:var(--cinza-medio);margin:.3rem 0 0">
+                      JPG, PNG, MP4, PDF — máx. 10MB por arquivo
+                    </p>
+                  </div>
+
+                  <input type="file" id="arquivo-input" multiple accept="image/*,video/*,.pdf"
+                    style="display:none" onchange="handleFiles(this.files)" />
+
+                  <!-- Preview dos arquivos selecionados -->
+                  <div id="upload-preview" style="display:none;margin-top:.75rem;
+                    display:flex;flex-wrap:wrap;gap:.5rem"></div>
+
+                  <!-- Barra de progresso -->
+                  <div id="upload-progress" style="display:none;margin-top:.75rem">
+                    <div style="background:var(--cinza-borda);border-radius:50px;height:6px;overflow:hidden">
+                      <div id="upload-bar" style="height:100%;background:var(--azul);
+                        border-radius:50px;width:0%;transition:width .3s"></div>
+                    </div>
+                    <p id="upload-status" style="font-size:.78rem;color:var(--azul);margin-top:.4rem"></p>
+                  </div>
+
+                  <span class="form-hint">As evidências ficam armazenadas com segurança e acessíveis apenas pela equipe pedagógica</span>
                 </div>
               </div>
 
@@ -2279,6 +2329,7 @@
         data_ocorrencia: document.getElementById('data').value,
         envolvido:       document.getElementById('envolvidos').value.trim() || null,
         descricao:       document.getElementById('descricao').value.trim(),
+        arquivos:        arquivosUpload.length > 0 ? arquivosUpload : null,
         status:          'pendente',
         timestamp:       new Date().toISOString(),
       };
@@ -2303,6 +2354,10 @@
         document.getElementById('identif-fields').classList.remove('hidden');
         document.getElementById('identif-fields').classList.add('visible');
         document.getElementById('turma').value = '';
+        arquivosUpload = [];
+        document.getElementById('upload-preview').style.display = 'none';
+        document.getElementById('upload-preview').innerHTML = '';
+        document.getElementById('arquivo-input').value = '';
 
         showToast();
       } catch(err) {
@@ -2410,9 +2465,14 @@
     // INIT
     // ══════════════════════════════════════════
     document.addEventListener('DOMContentLoaded', () => {
-      const today = new Date().toISOString().split('T')[0];
+      const today     = new Date().toISOString().split('T')[0];
+      const minDate   = '2026-01-01';
       const dateInput = document.getElementById('data');
-      if (dateInput) { dateInput.max = today; dateInput.value = today; }
+      if (dateInput) {
+        dateInput.min   = minDate;
+        dateInput.max   = today >= minDate ? today : '';
+        dateInput.value = today >= minDate ? today : minDate;
+      }
       updateNavActive('home');
       observeReveal();
     });
@@ -2669,7 +2729,26 @@
         <div class="modal-field full">
           <label>Descrição</label>
           <div class="modal-desc">${r.descricao || '—'}</div>
-        </div>`;
+        </div>
+        ${r.arquivos && r.arquivos.length > 0 ? `
+        <div class="modal-field full" style="margin-top:1rem">
+          <label>Evidências Anexadas</label>
+          <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem">
+            ${r.arquivos.map(a => `
+              <a href="${a.url || '#'}" target="_blank"
+                style="display:inline-flex;align-items:center;gap:6px;
+                  background:rgba(0,61,165,.07);border:1px solid rgba(0,61,165,.2);
+                  border-radius:8px;padding:5px 10px;font-size:.78rem;
+                  color:var(--azul);text-decoration:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  style="width:13px;height:13px">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                ${a.nome}
+              </a>`).join('')}
+          </div>
+        </div>` : ''}`;
 
       document.getElementById('modal-status-select').value = r.status || 'pendente';
       document.getElementById('modal-overlay').classList.add('open');
@@ -2687,17 +2766,25 @@
 
     async function salvarStatus() {
       if (modalIndex === null) return;
-      const btn = document.getElementById('modal-overlay').querySelector('.btn-save-status');
+      const btn      = document.getElementById('modal-overlay').querySelector('.btn-save-status');
+      const novoSt   = document.getElementById('modal-status-select').value;
+      const report   = _todosReports[modalIndex];
+      const statusAnterior = report.status;
+
       btn.disabled = true;
       btn.textContent = 'Salvando...';
 
-      _todosReports[modalIndex].status = document.getElementById('modal-status-select').value;
+      report.status = novoSt;
       await dbSaveReports(_todosReports);
+
+      // Envia e-mail se status mudou
+      if (novoSt !== statusAnterior) {
+        enviarEmailAtualizacaoStatus(report, novoSt);
+      }
 
       btn.disabled = false;
       btn.innerHTML = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          style="width:14px;height:14px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
           <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
           <polyline points="17 21 17 13 7 13 7 21"/>
           <polyline points="7 3 7 8 15 8"/>
@@ -2708,11 +2795,129 @@
       renderTabela();
     }
 
+    function enviarEmailAtualizacaoStatus(report, novoStatus) {
+      const statusTraduzido = { pendente: 'Pendente', em_analise: 'Em Análise', resolvido: 'Resolvido' };
+      const params = {
+        tipo_email:      `Atualização de Status — Denúncia #${report.id}`,
+        report_id:       report.id,
+        nome:            report.nome    || '—',
+        ra:              report.ra      || '—',
+        turma:           report.turma   || '—',
+        local:           report.local   || '—',
+        data_ocorrencia: fmtData(report.data_ocorrencia),
+        descricao:       report.descricao || '—',
+        envolvido:       report.envolvido || '—',
+        anonimo:         report.anonimo ? 'Sim' : 'Não',
+        status:          statusTraduzido[novoStatus] || novoStatus,
+        timestamp:       new Date().toLocaleString('pt-BR'),
+      };
+
+      // E-mail para a equipe pedagógica
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        ...params,
+        to_email: EMAIL_PEDAGOGICO,
+        to_name:  'Equipe Pedagógica SENAI',
+        email_aluno: report.email || '—',
+        reply_to: report.email || EMAIL_PEDAGOGICO,
+      }).then(() => console.log('📧 Atualização enviada ao pedagógico'))
+        .catch(err => console.error('EmailJS status (pedagógico):', JSON.stringify(err)));
+
+      // E-mail para o aluno (se tiver e-mail e não for anônimo)
+      if (!report.anonimo && report.email) {
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONFIRMACAO, {
+          ...params,
+          email_aluno: report.email,
+          to_name:     report.nome || 'Aluno',
+        }).then(() => console.log('📧 Atualização enviada ao aluno:', report.email))
+          .catch(err => console.error('EmailJS status (aluno):', JSON.stringify(err)));
+      }
+    }
+
     async function limparDados() {
       if (!confirm('Tem certeza que deseja apagar TODAS as denúncias? Esta ação não pode ser desfeita.')) return;
       _todosReports = [];
       await dbSaveReports([]);
       renderTabela();
+    }
+
+    // ══════════════════════════════════════════
+    // UPLOAD DE ARQUIVOS (Cloudinary)
+    // ══════════════════════════════════════════
+    // Para ativar: crie conta em cloudinary.com, vá em Settings > Upload Presets
+    // crie um preset "unsigned" e substitua os valores abaixo:
+    const CLOUDINARY_CLOUD = 'SEU_CLOUD_NAME';   // ex: 'dxyz123'
+    const CLOUDINARY_PRESET = 'SEU_UPLOAD_PRESET'; // ex: 'senai_bullying'
+
+    let arquivosUpload = []; // URLs dos arquivos enviados
+
+    function handleDrop(e) {
+      e.preventDefault();
+      document.getElementById('upload-area').style.borderColor = 'var(--cinza-borda)';
+      handleFiles(e.dataTransfer.files);
+    }
+
+    function handleFiles(files) {
+      const preview = document.getElementById('upload-preview');
+      preview.style.display = 'flex';
+      Array.from(files).forEach(file => {
+        if (file.size > 10 * 1024 * 1024) {
+          alert(`Arquivo "${file.name}" excede 10MB e foi ignorado.`);
+          return;
+        }
+        // Preview local
+        const tag = document.createElement('div');
+        tag.style.cssText = `display:flex;align-items:center;gap:6px;background:var(--cinza-claro);
+          border:1px solid var(--cinza-borda);border-radius:8px;padding:5px 10px;font-size:.78rem;`;
+        tag.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            style="width:13px;height:13px;color:var(--azul);flex-shrink:0">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <span style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            ${file.name}
+          </span>
+          <span id="status-${file.name.replace(/\W/g,'')}"
+            style="color:var(--cinza-medio);font-size:.7rem">Enviando...</span>`;
+        preview.appendChild(tag);
+        uploadCloudinary(file, tag.querySelector('span:last-child'));
+      });
+    }
+
+    async function uploadCloudinary(file, statusEl) {
+      // Se Cloudinary não estiver configurado, salva como base64 pequeno (só imagens pequenas)
+      if (CLOUDINARY_CLOUD === 'SEU_CLOUD_NAME') {
+        if (file.type.startsWith('image/') && file.size < 2 * 1024 * 1024) {
+          const reader = new FileReader();
+          reader.onload = e => {
+            arquivosUpload.push({ nome: file.name, url: e.target.result, tipo: file.type });
+            statusEl.textContent = '✓ Pronto';
+            statusEl.style.color = 'var(--sucesso)';
+          };
+          reader.readAsDataURL(file);
+        } else {
+          arquivosUpload.push({ nome: file.name, url: null, tipo: file.type });
+          statusEl.textContent = '✓ Registrado';
+          statusEl.style.color = 'var(--sucesso)';
+        }
+        return;
+      }
+
+      try {
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('upload_preset', CLOUDINARY_PRESET);
+        const res  = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`, {
+          method: 'POST', body: fd
+        });
+        const data = await res.json();
+        arquivosUpload.push({ nome: file.name, url: data.secure_url, tipo: file.type });
+        statusEl.textContent = '✓ Enviado';
+        statusEl.style.color = 'var(--sucesso)';
+      } catch(e) {
+        statusEl.textContent = '✗ Erro';
+        statusEl.style.color = 'var(--alerta)';
+      }
     }
   </script>
 </body>
