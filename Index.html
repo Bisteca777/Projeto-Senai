@@ -1,0 +1,3372 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SENAI Minas Gerais — Combate ao Bullying</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <style>
+    /* ══════════════════════════════════════════
+       DESIGN TOKENS
+    ══════════════════════════════════════════ */
+    :root {
+      --azul:          #003DA5;
+      --azul-escuro:   #002270;
+      --azul-claro:    #1A5CC8;
+      --azul-medio:    #0050CC;
+      --laranja:       #F47920;
+      --laranja-claro: #FF9A3C;
+      --laranja-escuro:#C95F05;
+      --branco:        #FFFFFF;
+      --cinza-claro:   #F2F5FB;
+      --cinza-medio:   #8A9BBD;
+      --cinza-borda:   #D8E0F0;
+      --texto:         #0E1A36;
+      --texto-leve:    #4A5878;
+      --sucesso:       #16A34A;
+      --alerta:        #DC2626;
+
+      --shadow-card: 0 4px 24px rgba(0,61,165,0.10);
+      --shadow-btn:  0 4px 16px rgba(244,121,32,0.35);
+      --radius:      14px;
+      --radius-lg:   22px;
+      --transition:  all .25s cubic-bezier(.4,0,.2,1);
+    }
+
+
+    /* ══════════════════════════════════════════
+       DARK MODE
+    ══════════════════════════════════════════ */
+    [data-theme="dark"] {
+      --branco:      #0F1729;
+      --cinza-claro: #1A2540;
+      --cinza-borda: #2A3A5C;
+      --texto:       #E8EEF8;
+      --texto-leve:  #8A9BBD;
+      --shadow-card: 0 4px 24px rgba(0,0,0,.45);
+    }
+    [data-theme="dark"] #navbar { background: rgba(5,15,45,.97); }
+    [data-theme="dark"] .pillar-card,
+    [data-theme="dark"] .form-card,
+    [data-theme="dark"] .modal-box,
+    [data-theme="dark"] .login-card { background: #1A2540; border-color: #2A3A5C; }
+    [data-theme="dark"] .form-input,
+    [data-theme="dark"] .form-select,
+    [data-theme="dark"] .form-textarea,
+    [data-theme="dark"] .filter-input,
+    [data-theme="dark"] .filter-select,
+    [data-theme="dark"] .modal-status-select,
+    [data-theme="dark"] .obs-input,
+    [data-theme="dark"] .chat-input,
+    [data-theme="dark"] .login-input { background: #0F1729; border-color: #2A3A5C; color: #E8EEF8; }
+    [data-theme="dark"] .anon-toggle { background: #1A2540; border-color: #2A3A5C; }
+    [data-theme="dark"] footer { background: #050F2D; }
+    [data-theme="dark"] .painel-table tbody tr:hover { background: rgba(255,255,255,.04); }
+    body { transition: background .3s, color .3s; }
+
+    .btn-darkmode {
+      background: rgba(255,255,255,.12); border: none; border-radius: 8px;
+      width: 34px; height: 34px; display: flex; align-items: center;
+      justify-content: center; cursor: pointer; color: #fff;
+      transition: var(--transition); flex-shrink: 0;
+    }
+    .btn-darkmode:hover { background: rgba(255,255,255,.22); }
+    .btn-darkmode svg { width: 16px; height: 16px; pointer-events: none; }
+
+    /* ══════════════════════════════════════════
+       QUIZ
+    ══════════════════════════════════════════ */
+    .quiz-section { padding: 5rem 0; }
+    .quiz-wrap { max-width: 680px; margin: 0 auto; }
+    .quiz-card { background: var(--branco); border-radius: var(--radius-lg); padding: 2.5rem; box-shadow: var(--shadow-card); border: 1px solid var(--cinza-borda); }
+    .quiz-progress { background: var(--cinza-borda); border-radius: 50px; height: 6px; margin-bottom: 2rem; overflow: hidden; }
+    .quiz-bar { height: 100%; background: linear-gradient(90deg, var(--azul), var(--azul-claro)); border-radius: 50px; transition: width .4s ease; }
+    .quiz-counter { font-size: .8rem; color: var(--cinza-medio); font-weight: 600; margin-bottom: .75rem; }
+    .quiz-question { font-size: 1.1rem; font-weight: 700; color: var(--texto); font-family: 'Montserrat', sans-serif; margin-bottom: 1.75rem; line-height: 1.4; }
+    .quiz-options { display: flex; flex-direction: column; gap: .75rem; }
+    .quiz-option { background: var(--cinza-claro); border: 2px solid var(--cinza-borda); border-radius: 12px; padding: 1rem 1.25rem; cursor: pointer; transition: var(--transition); font-size: .9rem; color: var(--texto); text-align: left; font-family: 'Inter', sans-serif; width: 100%; }
+    .quiz-option:hover:not(:disabled) { border-color: var(--azul); background: rgba(0,61,165,.06); }
+    .quiz-option.correto { border-color: #16A34A !important; background: rgba(22,163,74,.08) !important; color: #14532D !important; }
+    .quiz-option.errado  { border-color: #DC2626 !important; background: rgba(220,38,38,.08) !important; color: #DC2626 !important; }
+    .quiz-option:disabled { cursor: default; }
+    .quiz-feedback { background: var(--cinza-claro); border-radius: 10px; padding: 1rem 1.25rem; margin-top: 1.25rem; font-size: .87rem; line-height: 1.65; color: var(--texto-leve); display: none; }
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.ok  { border-left: 3px solid #16A34A; }
+    .quiz-feedback.nao { border-left: 3px solid #DC2626; }
+    .quiz-nav { display: flex; justify-content: flex-end; margin-top: 1.75rem; }
+    .quiz-result { text-align: center; padding: 1rem 0; }
+    .quiz-medal { font-size: 4rem; display: block; margin-bottom: 1rem; }
+    .quiz-score { font-family: 'Montserrat', sans-serif; font-size: 4rem; font-weight: 900; color: var(--azul); line-height: 1; }
+    .quiz-score span { color: var(--laranja); }
+
+    /* ══════════════════════════════════════════
+       DASHBOARD (painel)
+    ══════════════════════════════════════════ */
+    .dashboard { padding: 1.5rem 2rem; background: var(--cinza-claro); border-bottom: 1px solid var(--cinza-borda); }
+    .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .dash-card { background: var(--branco); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow-card); border: 1px solid var(--cinza-borda); }
+    .dash-label { font-size: .72rem; font-weight: 700; color: var(--cinza-medio); letter-spacing: .08em; text-transform: uppercase; margin-bottom: .4rem; }
+    .dash-value { font-family: 'Montserrat', sans-serif; font-size: 2rem; font-weight: 900; line-height: 1; }
+    .dash-value.azul { color: var(--azul); } .dash-value.laranja { color: var(--laranja); }
+    .dash-value.verde { color: #16A34A; }  .dash-value.vermelho { color: #DC2626; }
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+    .chart-box { background: var(--branco); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow-card); border: 1px solid var(--cinza-borda); }
+    .chart-title { font-size: .82rem; font-weight: 700; color: var(--texto); font-family: 'Montserrat', sans-serif; margin-bottom: 1rem; }
+    @media (max-width: 768px) { .dashboard { padding: 1rem; } }
+
+    /* ══════════════════════════════════════════
+       RESET & BASE
+    ══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--texto);
+      background: var(--branco);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4, h5 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+
+    p { line-height: 1.75; color: var(--texto-leve); }
+
+    a { text-decoration: none; color: inherit; }
+
+    img { display: block; max-width: 100%; }
+
+    /* ══════════════════════════════════════════
+       PÁGINA ATIVA / NAVEGAÇÃO
+    ══════════════════════════════════════════ */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ══════════════════════════════════════════
+       NAVBAR
+    ══════════════════════════════════════════ */
+    #navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(0,34,112,.97);
+      backdrop-filter: blur(12px);
+      border-bottom: 2px solid rgba(244,121,32,.25);
+      transition: var(--transition);
+    }
+
+    .nav-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    /* Logo */
+    .nav-logo {
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+    }
+    .nav-logo-badge {
+      background: var(--laranja);
+      border-radius: 8px;
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900; font-size: .75rem;
+      color: #fff;
+      letter-spacing: .04em;
+      flex-shrink: 0;
+      line-height: 1.1;
+      text-align: center;
+    }
+    .nav-logo-text {
+      display: flex; flex-direction: column; line-height: 1.1;
+    }
+    .nav-logo-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800; font-size: 1.1rem;
+      color: #fff; letter-spacing: .02em;
+    }
+    .nav-logo-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: .68rem; font-weight: 500;
+      color: var(--laranja-claro); letter-spacing: .08em; text-transform: uppercase;
+    }
+
+    /* Links nav */
+    .nav-links {
+      display: flex; align-items: center; gap: .25rem; list-style: none;
+    }
+    .nav-links li a {
+      padding: .45rem .9rem;
+      border-radius: 8px;
+      font-size: .88rem; font-weight: 500;
+      color: rgba(255,255,255,.82);
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+    .nav-links li a:hover,
+    .nav-links li a.nav-active {
+      color: #fff;
+      background: rgba(255,255,255,.1);
+    }
+    .nav-links li a.nav-active {
+      color: var(--laranja-claro);
+    }
+
+    /* CTA nav */
+    .btn-nav-cta {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--laranja);
+      color: #fff !important;
+      padding: .5rem 1.25rem !important;
+      border-radius: 50px !important;
+      font-weight: 700 !important; font-size: .88rem !important;
+      box-shadow: var(--shadow-btn);
+      transition: var(--transition) !important;
+      white-space: nowrap;
+    }
+    .btn-nav-cta:hover {
+      background: var(--laranja-claro) !important;
+      transform: translateY(-1px);
+      background: none !important;
+      background-color: var(--laranja-claro) !important;
+    }
+    .btn-nav-cta svg { width: 15px; height: 15px; }
+
+    /* Hamburger */
+    .nav-hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 6px;
+    }
+    .nav-hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: #fff; border-radius: 2px; transition: var(--transition);
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Mobile menu */
+    .nav-mobile {
+      display: none; position: absolute;
+      top: 68px; left: 0; right: 0;
+      background: rgba(0,34,112,.98);
+      border-bottom: 2px solid rgba(244,121,32,.2);
+      padding: 1rem 2rem 1.5rem;
+    }
+    .nav-mobile.open { display: block; }
+    .nav-mobile ul { list-style: none; display: flex; flex-direction: column; gap: .25rem; }
+    .nav-mobile ul li a {
+      display: block; padding: .65rem .75rem;
+      border-radius: 8px; font-size: .95rem; font-weight: 500;
+      color: rgba(255,255,255,.85); transition: var(--transition);
+    }
+    .nav-mobile ul li a:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .nav-mobile .btn-nav-cta { margin-top: .75rem; display: inline-flex; width: 100%; justify-content: center; }
+
+    /* ══════════════════════════════════════════
+       BOTÕES GLOBAIS
+    ══════════════════════════════════════════ */
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--laranja);
+      color: #fff;
+      padding: .85rem 2rem;
+      border-radius: 50px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700; font-size: .95rem;
+      border: none; cursor: pointer;
+      box-shadow: var(--shadow-btn);
+      transition: var(--transition);
+    }
+    .btn-primary:hover {
+      background: var(--laranja-claro);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(244,121,32,.4);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-outline {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      background: transparent;
+      color: #fff;
+      padding: .85rem 2rem;
+      border-radius: 50px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700; font-size: .95rem;
+      border: 2px solid rgba(255,255,255,.6);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-outline:hover {
+      background: rgba(255,255,255,.12);
+      border-color: #fff;
+    }
+
+    .btn-azul {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--azul);
+      color: #fff;
+      padding: .85rem 2rem;
+      border-radius: 50px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700; font-size: .95rem;
+      border: none; cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 16px rgba(0,61,165,.25);
+    }
+    .btn-azul:hover {
+      background: var(--azul-claro);
+      transform: translateY(-2px);
+    }
+
+    /* ══════════════════════════════════════════
+       SEÇÕES COMUNS
+    ══════════════════════════════════════════ */
+    .section-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(0,61,165,.08);
+      color: var(--azul-claro);
+      border: 1px solid rgba(0,61,165,.18);
+      border-radius: 50px;
+      padding: .3rem .9rem;
+      font-size: .78rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      color: var(--texto);
+      margin-bottom: .75rem;
+    }
+    .section-title span { color: var(--azul); }
+    .section-title .accent { color: var(--laranja); }
+
+    /* Animação de entrada */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes pulse-ring {
+      0%   { transform: scale(.9); opacity: .7; }
+      70%  { transform: scale(1.15); opacity: 0; }
+      100% { transform: scale(.9); opacity: 0; }
+    }
+
+    .anim-up  { animation: fadeUp .7s ease both; }
+    .anim-in  { animation: fadeIn .6s ease both; }
+    .d1 { animation-delay: .1s; }
+    .d2 { animation-delay: .22s; }
+    .d3 { animation-delay: .34s; }
+    .d4 { animation-delay: .46s; }
+    .d5 { animation-delay: .58s; }
+
+    /* ══════════════════════════════════════════
+       PAGE: HOME
+    ══════════════════════════════════════════ */
+
+    /* Hero */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex; align-items: center;
+      overflow: hidden;
+      background: var(--azul-escuro);
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(135deg, rgba(0,34,112,.96) 0%, rgba(0,61,165,.80) 50%, rgba(0,80,200,.6) 100%);
+      z-index: 1;
+    }
+    /* Formas geométricas decorativas */
+    .hero-geo {
+      position: absolute; inset: 0; z-index: 0; overflow: hidden;
+    }
+    .hero-geo::before {
+      content: '';
+      position: absolute;
+      width: 680px; height: 680px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(244,121,32,.18);
+      right: -140px; top: -180px;
+    }
+    .hero-geo::after {
+      content: '';
+      position: absolute;
+      width: 460px; height: 460px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,.07);
+      right: 60px; top: -40px;
+    }
+    .hero-geo-dot {
+      position: absolute;
+      width: 320px; height: 320px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(244,121,32,.14) 0%, transparent 70%);
+      right: 80px; top: 60px;
+      z-index: 0;
+    }
+    .hero-stripe {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--laranja) 0%, var(--laranja-claro) 50%, var(--azul-claro) 100%);
+      z-index: 2;
+    }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 7rem 1.5rem 5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(244,121,32,.18);
+      border: 1px solid rgba(244,121,32,.35);
+      border-radius: 50px;
+      padding: .35rem 1rem;
+      color: var(--laranja-claro);
+      font-size: .78rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      margin-bottom: 1.25rem;
+    }
+    .hero-badge span { width: 7px; height: 7px; border-radius: 50%; background: var(--laranja-claro); display: block; }
+
+    .hero-title {
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      color: #fff;
+      line-height: 1.08;
+      margin-bottom: 1.25rem;
+    }
+    .hero-title .hl { color: var(--laranja-claro); }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.8);
+      line-height: 1.75;
+      margin-bottom: 2rem;
+      max-width: 520px;
+    }
+
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+    /* Estatísticas hero */
+    .hero-stats {
+      display: flex; gap: 2rem; margin-top: 2.5rem;
+      flex-wrap: wrap;
+    }
+    .hero-stat { text-align: left; }
+    .hero-stat-num {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900; font-size: 2rem;
+      color: #fff; line-height: 1;
+    }
+    .hero-stat-num span { color: var(--laranja-claro); }
+    .hero-stat-label { font-size: .78rem; color: rgba(255,255,255,.6); margin-top: 2px; }
+
+    /* Card hero direito */
+    .hero-card {
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+    }
+    .hero-card-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      color: var(--laranja-claro);
+      letter-spacing: .06em; text-transform: uppercase;
+      margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .hero-card-title svg { width: 18px; height: 18px; }
+    .hero-pillar {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: .9rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .hero-pillar:last-child { border-bottom: none; }
+    .hero-pillar-icon {
+      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(244,121,32,.18);
+    }
+    .hero-pillar-icon svg { width: 18px; height: 18px; color: var(--laranja-claro); }
+    .hero-pillar-text strong {
+      display: block; font-size: .9rem; font-weight: 700;
+      color: #fff; margin-bottom: 2px;
+      font-family: 'Montserrat', sans-serif;
+    }
+    .hero-pillar-text p { font-size: .8rem; color: rgba(255,255,255,.6); line-height: 1.5; margin: 0; }
+
+    /* Seção Pilares */
+    .pillars-section {
+      padding: 6rem 0;
+      background: var(--cinza-claro);
+    }
+    .pillars-header { text-align: center; margin-bottom: 3.5rem; }
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+    .pillar-card {
+      background: #fff;
+      border: 1px solid var(--cinza-borda);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      box-shadow: var(--shadow-card);
+      transition: var(--transition);
+      position: relative; overflow: hidden;
+    }
+    .pillar-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: var(--laranja);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .35s ease;
+    }
+    .pillar-card:hover { transform: translateY(-5px); box-shadow: 0 12px 36px rgba(0,61,165,.14); }
+    .pillar-card:hover::before { transform: scaleX(1); }
+    .pillar-icon {
+      width: 60px; height: 60px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.25rem;
+      background: linear-gradient(135deg, rgba(0,61,165,.1) 0%, rgba(0,80,200,.06) 100%);
+    }
+    .pillar-icon svg { width: 28px; height: 28px; color: var(--azul); }
+    .pillar-card h3 {
+      font-size: 1.05rem; color: var(--texto);
+      margin-bottom: .6rem;
+    }
+    .pillar-card p { font-size: .87rem; }
+
+    /* Frases de Prosperidade */
+    .quotes-section {
+      padding: 5rem 0;
+      background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul) 60%, var(--azul-claro) 100%);
+      position: relative; overflow: hidden;
+    }
+    .quotes-section::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .quotes-header { text-align: center; margin-bottom: 3rem; position: relative; z-index: 1; }
+    .quotes-header .section-label { background: rgba(244,121,32,.15); color: var(--laranja-claro); border-color: rgba(244,121,32,.3); }
+    .quotes-header .section-title { color: #fff; }
+    .quotes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      position: relative; z-index: 1;
+    }
+    .quote-card {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      transition: var(--transition);
+    }
+    .quote-card:hover {
+      background: rgba(255,255,255,.11);
+      transform: translateY(-3px);
+    }
+    .quote-mark {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 4rem; font-weight: 900;
+      color: var(--laranja-claro);
+      line-height: .8;
+      margin-bottom: .5rem;
+      opacity: .7;
+    }
+    .quote-text {
+      font-size: 1rem; font-weight: 500;
+      color: rgba(255,255,255,.92);
+      line-height: 1.65;
+      font-style: italic;
+      margin-bottom: 1rem;
+    }
+    .quote-author {
+      font-size: .8rem; font-weight: 700;
+      color: var(--laranja-claro);
+      letter-spacing: .06em; text-transform: uppercase;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      padding: 6rem 0;
+      background: #fff;
+    }
+    .cta-box {
+      background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%);
+      border-radius: var(--radius-lg);
+      padding: 4rem 3rem;
+      text-align: center;
+      position: relative; overflow: hidden;
+      box-shadow: 0 16px 56px rgba(0,61,165,.25);
+    }
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: rgba(244,121,32,.12);
+      right: -150px; top: -200px;
+    }
+    .cta-box::after {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.05);
+      left: -80px; bottom: -100px;
+    }
+    .cta-box-content { position: relative; z-index: 1; }
+    .cta-box h2 {
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      color: #fff; margin-bottom: .75rem;
+    }
+    .cta-box p { color: rgba(255,255,255,.8); max-width: 580px; margin: 0 auto 2rem; }
+    .cta-box .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    /* ══════════════════════════════════════════
+       PAGE: INFORMAÇÕES
+    ══════════════════════════════════════════ */
+    .page-hero {
+      background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul) 100%);
+      padding: 8rem 1.5rem 4rem;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 5px;
+      background: linear-gradient(90deg, var(--laranja), var(--laranja-claro));
+    }
+    .page-hero h1 { color: #fff; font-size: clamp(1.8rem, 4vw, 3rem); margin-bottom: .75rem; }
+    .page-hero p { color: rgba(255,255,255,.78); max-width: 640px; margin: 0 auto; }
+
+    .info-section { padding: 5rem 0; }
+    .info-intro {
+      max-width: 800px; margin: 0 auto 4rem;
+      text-align: center;
+    }
+    .info-intro p { font-size: 1.05rem; }
+
+    .tipos-title {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      color: var(--texto); margin-bottom: 2rem; text-align: center;
+    }
+
+    .tipos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 4rem;
+    }
+    .tipo-card {
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      border-left: 4px solid var(--azul);
+      background: #fff;
+      box-shadow: var(--shadow-card);
+      transition: var(--transition);
+    }
+    .tipo-card:hover { transform: translateY(-3px); }
+    .tipo-card.verbal  { border-color: #E53E3E; }
+    .tipo-card.fisico  { border-color: #DD6B20; }
+    .tipo-card.psico   { border-color: #553C9A; }
+    .tipo-card.cyber   { border-color: #2B6CB0; }
+    .tipo-card-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .tipo-card.verbal  .tipo-card-icon { background: rgba(229,62,62,.1); }
+    .tipo-card.fisico  .tipo-card-icon { background: rgba(221,107,32,.1); }
+    .tipo-card.psico   .tipo-card-icon { background: rgba(85,60,154,.1); }
+    .tipo-card.cyber   .tipo-card-icon { background: rgba(43,108,176,.1); }
+    .tipo-card.verbal  .tipo-card-icon svg { color: #E53E3E; }
+    .tipo-card.fisico  .tipo-card-icon svg { color: #DD6B20; }
+    .tipo-card.psico   .tipo-card-icon svg { color: #553C9A; }
+    .tipo-card.cyber   .tipo-card-icon svg { color: #2B6CB0; }
+    .tipo-card-icon svg { width: 22px; height: 22px; }
+    .tipo-card h3 { font-size: .95rem; margin-bottom: .5rem; }
+    .tipo-card p { font-size: .85rem; }
+
+    /* Consequências */
+    .consequencias { background: var(--cinza-claro); padding: 4rem 0; margin-bottom: 4rem; }
+    .conseq-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+    }
+    .conseq-box {
+      background: #fff; border-radius: var(--radius);
+      padding: 2rem; box-shadow: var(--shadow-card);
+    }
+    .conseq-box h3 {
+      font-size: 1.05rem; margin-bottom: 1rem; color: var(--texto);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .conseq-box h3 svg { width: 20px; height: 20px; }
+    .conseq-box.vitima h3 svg { color: #C53030; }
+    .conseq-box.agressor h3 svg { color: var(--laranja); }
+    .conseq-list { list-style: none; display: flex; flex-direction: column; gap: .6rem; }
+    .conseq-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: .88rem; color: var(--texto-leve); line-height: 1.5;
+    }
+    .conseq-list li::before {
+      content: '→'; font-weight: 700;
+      color: var(--azul); flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* Legislação */
+    .leg-section { padding: 4rem 0 5rem; }
+    .leg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .leg-card {
+      background: var(--azul-escuro);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      color: #fff; position: relative; overflow: hidden;
+    }
+    .leg-card::before {
+      content: '';
+      position: absolute; top: -30px; right: -30px;
+      width: 130px; height: 130px; border-radius: 50%;
+      background: rgba(244,121,32,.12);
+    }
+    .leg-card-num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2rem; font-weight: 900;
+      color: var(--laranja-claro); line-height: 1; margin-bottom: .5rem;
+    }
+    .leg-card h3 { font-size: 1rem; color: #fff; margin-bottom: .75rem; }
+    .leg-card p { font-size: .86rem; color: rgba(255,255,255,.72); }
+    .leg-tag {
+      display: inline-block; margin-top: 1rem;
+      background: rgba(244,121,32,.2); border: 1px solid rgba(244,121,32,.35);
+      color: var(--laranja-claro); border-radius: 50px;
+      padding: .25rem .75rem; font-size: .75rem; font-weight: 700;
+    }
+
+    /* ══════════════════════════════════════════
+       PAGE: AJUDA
+    ══════════════════════════════════════════ */
+    .ajuda-section { padding: 5rem 0; }
+    .ajuda-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem; margin-bottom: 4rem;
+    }
+    .ajuda-card {
+      background: #fff; border-radius: var(--radius-lg);
+      padding: 2rem; border: 1px solid var(--cinza-borda);
+      box-shadow: var(--shadow-card); transition: var(--transition);
+      text-align: center;
+    }
+    .ajuda-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,61,165,.12); }
+    .ajuda-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.25rem;
+      background: linear-gradient(135deg, rgba(0,61,165,.1), rgba(0,80,200,.05));
+    }
+    .ajuda-icon svg { width: 28px; height: 28px; color: var(--azul); }
+    .ajuda-card h3 { font-size: 1.05rem; margin-bottom: .6rem; }
+    .ajuda-card p { font-size: .87rem; }
+
+    /* Recursos emocionais */
+    .recursos-section {
+      background: var(--cinza-claro); padding: 4rem 0;
+      margin-bottom: 4rem;
+    }
+    .recursos-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .recurso-item {
+      background: #fff; border-radius: var(--radius);
+      padding: 1.25rem;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.05);
+      transition: var(--transition);
+    }
+    .recurso-item:hover { transform: translateX(4px); }
+    .recurso-bullet {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--azul); flex-shrink: 0;
+    }
+    .recurso-item span { font-size: .88rem; font-weight: 500; color: var(--texto); }
+
+    /* Disque 100 */
+    .disque-box {
+      background: linear-gradient(135deg, #C53030 0%, #9B2C2C 100%);
+      border-radius: var(--radius-lg);
+      padding: 3rem;
+      text-align: center; color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .disque-box::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 70% 50%, rgba(255,255,255,.08) 0%, transparent 60%);
+    }
+    .disque-content { position: relative; z-index: 1; }
+    .disque-ring {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: rgba(255,255,255,.15);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.5rem;
+      position: relative;
+    }
+    .disque-ring::before {
+      content: '';
+      position: absolute; inset: -8px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.25);
+      animation: pulse-ring 2s ease-out infinite;
+    }
+    .disque-ring svg { width: 44px; height: 44px; }
+    .disque-box h2 { font-size: 1.75rem; margin-bottom: .5rem; }
+    .disque-num {
+      font-family: 'Montserrat', sans-serif; font-weight: 900;
+      font-size: 4rem; line-height: 1; margin: .5rem 0;
+      letter-spacing: .04em;
+    }
+    .disque-box p { color: rgba(255,255,255,.8); max-width: 480px; margin: 0 auto 1.5rem; }
+    .btn-disque {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #fff; color: #C53030;
+      padding: .9rem 2.25rem;
+      border-radius: 50px;
+      font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1rem;
+      border: none; cursor: pointer; transition: var(--transition);
+    }
+    .btn-disque:hover { background: rgba(255,255,255,.9); transform: scale(1.04); }
+
+    /* ══════════════════════════════════════════
+       PAGE: DENUNCIAR
+    ══════════════════════════════════════════ */
+    .denuncia-section { padding: 5rem 0; }
+    .denuncia-wrap {
+      max-width: 760px; margin: 0 auto;
+    }
+    .anon-toggle {
+      background: var(--cinza-claro);
+      border: 2px solid var(--cinza-borda);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      margin-bottom: 2rem;
+      cursor: pointer; transition: var(--transition);
+    }
+    .anon-toggle:hover { border-color: var(--azul-claro); }
+    .anon-toggle.active {
+      border-color: var(--azul);
+      background: rgba(0,61,165,.05);
+    }
+    .anon-toggle-left { display: flex; align-items: center; gap: 12px; }
+    .anon-toggle-left svg { width: 22px; height: 22px; color: var(--azul); }
+    .anon-toggle-text strong {
+      display: block; font-size: .95rem; font-weight: 700;
+      color: var(--texto); font-family: 'Montserrat', sans-serif;
+    }
+    .anon-toggle-text span { font-size: .82rem; color: var(--texto-leve); }
+
+    /* Switch */
+    .switch { position: relative; display: inline-block; width: 46px; height: 26px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--cinza-borda); border-radius: 26px;
+      transition: .3s;
+    }
+    .slider::before {
+      content: '';
+      position: absolute; height: 20px; width: 20px;
+      left: 3px; bottom: 3px;
+      background: #fff; border-radius: 50%; transition: .3s;
+      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+    }
+    input:checked + .slider { background: var(--azul); }
+    input:checked + .slider::before { transform: translateX(20px); }
+
+    /* Form */
+    .form-card {
+      background: #fff; border-radius: var(--radius-lg);
+      padding: 2.5rem; box-shadow: var(--shadow-card);
+      border: 1px solid var(--cinza-borda);
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .form-group { display: flex; flex-direction: column; gap: .45rem; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-label {
+      font-size: .82rem; font-weight: 700;
+      color: var(--texto); letter-spacing: .03em;
+      font-family: 'Montserrat', sans-serif;
+    }
+    .form-label .req { color: var(--alerta); }
+    .form-input, .form-select, .form-textarea {
+      border: 1.5px solid var(--cinza-borda);
+      border-radius: 10px;
+      padding: .7rem 1rem;
+      font-family: 'Inter', sans-serif; font-size: .9rem;
+      color: var(--texto); background: #fff;
+      transition: var(--transition);
+      outline: none;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--azul);
+      box-shadow: 0 0 0 3px rgba(0,61,165,.1);
+    }
+    .form-textarea { resize: vertical; min-height: 120px; }
+    .form-hint { font-size: .77rem; color: var(--cinza-medio); }
+    .form-divider {
+      border: none; border-top: 1px solid var(--cinza-borda);
+      margin: 1.75rem 0;
+    }
+    .form-section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: .85rem; font-weight: 800;
+      color: var(--azul); letter-spacing: .08em;
+      text-transform: uppercase; margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .form-section-title svg { width: 16px; height: 16px; }
+    .form-submit-row {
+      margin-top: 1.75rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .form-disclaimer {
+      font-size: .8rem; color: var(--cinza-medio);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .form-disclaimer svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* Identif fields ocultáveis */
+    #identif-fields { transition: opacity .3s, max-height .4s; overflow: hidden; }
+    #identif-fields.hidden { max-height: 0; opacity: 0; pointer-events: none; }
+    #identif-fields.visible { max-height: 400px; opacity: 1; }
+
+    /* Toast / alert */
+    .toast {
+      display: none; position: fixed;
+      bottom: 2rem; right: 2rem;
+      background: var(--sucesso); color: #fff;
+      border-radius: var(--radius); padding: 1rem 1.5rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,.2);
+      font-weight: 600; font-size: .9rem;
+      z-index: 9999; max-width: 340px;
+      display: flex; align-items: center; gap: 10px;
+      opacity: 0; transition: opacity .3s;
+    }
+    .toast.show { opacity: 1; }
+    .toast svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    /* ══════════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════════ */
+    footer {
+      background: var(--azul-escuro);
+      border-top: 3px solid var(--laranja);
+      padding: 3.5rem 1.5rem 1.5rem;
+    }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 2.5rem;
+      margin-bottom: 3rem;
+    }
+    .footer-brand {}
+    .footer-brand-logo {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 1rem;
+    }
+    .footer-brand-logo .badge {
+      background: var(--laranja); border-radius: 8px;
+      width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: .7rem;
+      color: #fff; text-align: center; line-height: 1.1;
+    }
+    .footer-brand-logo .brand-text {
+      font-family: 'Montserrat', sans-serif; font-weight: 800;
+      font-size: 1rem; color: #fff;
+    }
+    .footer-brand p { font-size: .85rem; color: rgba(255,255,255,.55); line-height: 1.7; }
+
+    .footer-col h4 {
+      font-family: 'Montserrat', sans-serif; font-size: .8rem;
+      font-weight: 800; color: var(--laranja-claro);
+      letter-spacing: .1em; text-transform: uppercase;
+      margin-bottom: .85rem;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .45rem; }
+    .footer-col ul li a {
+      font-size: .85rem; color: rgba(255,255,255,.55);
+      transition: var(--transition); cursor: pointer;
+    }
+    .footer-col ul li a:hover { color: rgba(255,255,255,.9); }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: .75rem;
+    }
+    .footer-bottom p { font-size: .78rem; color: rgba(255,255,255,.35); }
+    .footer-bottom .snai-badge {
+      font-size: .72rem; font-weight: 700;
+      color: rgba(255,255,255,.35); letter-spacing: .08em;
+    }
+
+    /* ══════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .hero-content { grid-template-columns: 1fr; padding-top: 6rem; }
+      .hero-card { display: none; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .conseq-grid { grid-template-columns: 1fr; }
+      .leg-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .btn-nav-cta.desktop { display: none; }
+      .nav-hamburger { display: flex; }
+      .hero-stats { gap: 1.25rem; }
+      .hero-btns { flex-direction: column; }
+      .btn-primary, .btn-outline, .btn-azul { width: 100%; }
+      .cta-box { padding: 2.5rem 1.5rem; }
+      .footer-top { grid-template-columns: 1fr; }
+      .disque-num { font-size: 3rem; }
+    }
+
+    /* ══════════════════════════════════════════
+       SCROLL REVEAL
+    ══════════════════════════════════════════ */
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity .65s ease, transform .65s ease;
+    }
+    .reveal.visible {
+      opacity: 1; transform: translateY(0);
+    }
+
+    /* ══════════════════════════════════════════
+       PAGE: PAINEL PEDAGÓGICO
+    ══════════════════════════════════════════ */
+
+    /* Tela de login */
+    .login-screen {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul) 100%);
+      padding: 1.5rem;
+      position: relative; overflow: hidden;
+    }
+    .login-screen::before {
+      content: '';
+      position: absolute; width: 600px; height: 600px; border-radius: 50%;
+      border: 1.5px solid rgba(244,121,32,.15);
+      right: -200px; top: -200px;
+    }
+    .login-screen::after {
+      content: '';
+      position: absolute; width: 400px; height: 400px; border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,.06);
+      left: -150px; bottom: -150px;
+    }
+    .login-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 2.75rem 2.5rem;
+      width: 100%; max-width: 420px;
+      box-shadow: 0 32px 80px rgba(0,0,0,.25);
+      position: relative; z-index: 1;
+      text-align: center;
+    }
+    .login-logo { margin: 0 auto 1.5rem; }
+    .login-logo img { height: 40px; margin: 0 auto; }
+    .login-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(0,61,165,.08); border: 1px solid rgba(0,61,165,.18);
+      color: var(--azul); border-radius: 50px;
+      padding: .3rem .9rem; font-size: .75rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      margin-bottom: 1.25rem;
+    }
+    .login-badge svg { width: 13px; height: 13px; }
+    .login-card h2 { font-size: 1.5rem; color: var(--texto); margin-bottom: .4rem; }
+    .login-card p { font-size: .87rem; color: var(--texto-leve); margin-bottom: 2rem; }
+    .login-input-wrap { position: relative; margin-bottom: 1.25rem; }
+    .login-input-wrap svg {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      width: 17px; height: 17px; color: var(--cinza-medio);
+      pointer-events: none;
+    }
+    .login-input {
+      width: 100%; padding: .75rem 1rem .75rem 2.75rem;
+      border: 1.5px solid var(--cinza-borda); border-radius: 10px;
+      font-family: 'Inter', sans-serif; font-size: .92rem;
+      color: var(--texto); outline: none; transition: var(--transition);
+    }
+    .login-input:focus {
+      border-color: var(--azul);
+      box-shadow: 0 0 0 3px rgba(0,61,165,.1);
+    }
+    .login-error {
+      background: rgba(220,38,38,.08); border: 1px solid rgba(220,38,38,.25);
+      color: var(--alerta); border-radius: 8px;
+      padding: .65rem 1rem; font-size: .83rem; font-weight: 500;
+      margin-bottom: 1rem; display: none;
+      align-items: center; gap: 8px;
+    }
+    .login-error svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .login-error.show { display: flex; }
+    .btn-login {
+      width: 100%; padding: .85rem;
+      background: var(--azul); color: #fff;
+      border: none; border-radius: 50px;
+      font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: .95rem;
+      cursor: pointer; transition: var(--transition);
+    }
+    .btn-login:hover { background: var(--azul-claro); }
+
+    /* Painel principal */
+    .painel-wrap { display: none; }
+    .painel-wrap.visible { display: block; }
+
+    .painel-header {
+      background: var(--azul-escuro);
+      border-bottom: 3px solid var(--laranja);
+      padding: 1.25rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap;
+      position: sticky; top: 68px; z-index: 100;
+    }
+    .painel-header-left { display: flex; align-items: center; gap: 12px; }
+    .painel-header-left svg { width: 22px; height: 22px; color: var(--laranja-claro); }
+    .painel-header-left h2 {
+      font-size: 1rem; color: #fff;
+      font-family: 'Montserrat', sans-serif; font-weight: 800;
+    }
+    .painel-header-left span { font-size: .78rem; color: rgba(255,255,255,.5); }
+
+    .painel-header-right { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+
+    .painel-stats-bar {
+      display: flex; gap: .5rem; flex-wrap: wrap;
+    }
+    .pstat {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px; padding: .3rem .75rem;
+      font-size: .78rem; font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .pstat .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .pstat.pendente .dot { background: #F59E0B; }
+    .pstat.analise  .dot { background: #3B82F6; }
+    .pstat.resolvido .dot { background: var(--sucesso); }
+    .pstat span { color: #fff; }
+    .pstat em { color: rgba(255,255,255,.5); font-style: normal; }
+
+    .btn-sair {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18);
+      color: rgba(255,255,255,.8); border-radius: 8px;
+      padding: .4rem .9rem; font-size: .82rem; font-weight: 600;
+      cursor: pointer; transition: var(--transition);
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-sair svg { width: 14px; height: 14px; }
+    .btn-sair:hover { background: rgba(220,38,38,.25); color: #fff; border-color: rgba(220,38,38,.4); }
+
+    /* Filtros */
+    .painel-filters {
+      background: var(--cinza-claro);
+      border-bottom: 1px solid var(--cinza-borda);
+      padding: 1rem 2rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .filter-label { font-size: .8rem; font-weight: 700; color: var(--texto); font-family: 'Montserrat', sans-serif; white-space: nowrap; }
+    .filter-select {
+      padding: .4rem .85rem; border: 1.5px solid var(--cinza-borda);
+      border-radius: 8px; font-size: .85rem; color: var(--texto);
+      background: #fff; outline: none; transition: var(--transition);
+      font-family: 'Inter', sans-serif; cursor: pointer;
+    }
+    .filter-select:focus { border-color: var(--azul); }
+    .filter-count {
+      margin-left: auto; font-size: .82rem; color: var(--texto-leve);
+      font-weight: 500;
+    }
+    .btn-clear-all {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(220,38,38,.08); border: 1px solid rgba(220,38,38,.2);
+      color: var(--alerta); border-radius: 8px;
+      padding: .4rem .85rem; font-size: .8rem; font-weight: 600;
+      cursor: pointer; transition: var(--transition);
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-clear-all:hover { background: rgba(220,38,38,.15); }
+    .btn-clear-all svg { width: 13px; height: 13px; }
+
+    /* Tabela */
+    .painel-table-wrap {
+      padding: 1.5rem 2rem 3rem;
+      overflow-x: auto;
+    }
+    .painel-table {
+      width: 100%; border-collapse: collapse;
+      font-size: .85rem;
+    }
+    .painel-table thead th {
+      background: var(--azul-escuro); color: rgba(255,255,255,.85);
+      padding: .75rem 1rem; text-align: left;
+      font-family: 'Montserrat', sans-serif; font-weight: 700;
+      font-size: .75rem; letter-spacing: .06em; text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .painel-table thead th:first-child { border-radius: 8px 0 0 8px; }
+    .painel-table thead th:last-child  { border-radius: 0 8px 8px 0; }
+    .painel-table tbody tr {
+      border-bottom: 1px solid var(--cinza-borda);
+      transition: var(--transition);
+    }
+    .painel-table tbody tr:hover { background: rgba(0,61,165,.03); }
+    .painel-table tbody td { padding: .9rem 1rem; color: var(--texto); vertical-align: middle; }
+    .painel-table tbody td .sub { font-size: .77rem; color: var(--cinza-medio); margin-top: 1px; }
+
+    /* Status badges */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: .25rem .7rem; border-radius: 50px;
+      font-size: .75rem; font-weight: 700;
+      white-space: nowrap;
+    }
+    .status-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .status-badge.pendente   { background: rgba(245,158,11,.12); color: #92400E; }
+    .status-badge.pendente .dot   { background: #F59E0B; }
+    .status-badge.em_analise { background: rgba(59,130,246,.12); color: #1D4ED8; }
+    .status-badge.em_analise .dot { background: #3B82F6; }
+    .status-badge.resolvido  { background: rgba(22,163,74,.12);  color: #14532D; }
+    .status-badge.resolvido .dot  { background: var(--sucesso); }
+
+    /* Anônimo badge */
+    .anon-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: .2rem .6rem; border-radius: 50px;
+      font-size: .72rem; font-weight: 700;
+    }
+    .anon-badge.sim { background: rgba(107,114,128,.1); color: #374151; }
+    .anon-badge.nao { background: rgba(0,61,165,.08);  color: var(--azul); }
+    .anon-badge svg { width: 11px; height: 11px; }
+
+    /* Ações */
+    .action-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: .3rem .7rem; border-radius: 7px;
+      font-size: .78rem; font-weight: 600;
+      border: 1px solid; cursor: pointer; transition: var(--transition);
+      font-family: 'Inter', sans-serif; white-space: nowrap;
+    }
+    .action-btn svg { width: 13px; height: 13px; }
+    .action-btn.ver    { border-color: rgba(0,61,165,.3); color: var(--azul); background: rgba(0,61,165,.06); }
+    .action-btn.ver:hover { background: rgba(0,61,165,.12); }
+    .action-btn.status-change { border-color: rgba(245,158,11,.3); color: #92400E; background: rgba(245,158,11,.06); }
+    .action-btn.status-change:hover { background: rgba(245,158,11,.14); }
+
+    /* Modal detalhes */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 9000;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: var(--radius-lg);
+      width: 100%; max-width: 620px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 32px 80px rgba(0,0,0,.3);
+    }
+    .modal-head {
+      background: var(--azul-escuro);
+      padding: 1.5rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    .modal-head h3 { font-size: 1rem; color: #fff; }
+    .modal-head span { font-size: .78rem; color: rgba(255,255,255,.5); display: block; margin-top: 2px; }
+    .modal-close {
+      background: rgba(255,255,255,.1); border: none; border-radius: 8px;
+      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #fff; transition: var(--transition); flex-shrink: 0;
+    }
+    .modal-close:hover { background: rgba(220,38,38,.3); }
+    .modal-close svg { width: 16px; height: 16px; }
+    .modal-body { padding: 2rem; }
+    .modal-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;
+    }
+    .modal-field label {
+      display: block; font-size: .72rem; font-weight: 700;
+      color: var(--azul); letter-spacing: .08em; text-transform: uppercase;
+      margin-bottom: .3rem; font-family: 'Montserrat', sans-serif;
+    }
+    .modal-field p { font-size: .9rem; color: var(--texto); font-weight: 500; }
+    .modal-field.full { grid-column: 1 / -1; }
+    .modal-desc {
+      background: var(--cinza-claro); border-radius: 10px;
+      padding: 1rem; font-size: .88rem; color: var(--texto-leve);
+      line-height: 1.7; border-left: 3px solid var(--azul);
+    }
+    .modal-footer {
+      padding: 1.25rem 2rem;
+      border-top: 1px solid var(--cinza-borda);
+      display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+    }
+    .modal-status-select {
+      padding: .5rem 1rem; border: 1.5px solid var(--cinza-borda);
+      border-radius: 8px; font-size: .88rem; color: var(--texto);
+      background: #fff; outline: none; font-family: 'Inter', sans-serif;
+      cursor: pointer; flex: 1;
+    }
+    .modal-status-select:focus { border-color: var(--azul); }
+    .btn-save-status {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--azul); color: #fff;
+      padding: .55rem 1.25rem; border-radius: 8px;
+      font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: .85rem;
+      border: none; cursor: pointer; transition: var(--transition);
+    }
+    .btn-save-status:hover { background: var(--azul-claro); }
+    .btn-save-status svg { width: 14px; height: 14px; }
+
+    /* Empty state */
+    .painel-empty {
+      text-align: center; padding: 5rem 2rem;
+    }
+    .painel-empty svg { width: 56px; height: 56px; color: var(--cinza-borda); margin: 0 auto 1.25rem; }
+    .painel-empty h3 { font-size: 1.1rem; color: var(--texto); margin-bottom: .5rem; }
+    .painel-empty p { font-size: .88rem; }
+
+    @media (max-width: 768px) {
+      .painel-header { top: 0; padding: 1rem; }
+      .painel-filters { padding: .85rem 1rem; }
+      .painel-table-wrap { padding: 1rem; }
+      .modal-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════
+       NAVBAR
+  ════════════════════════════════════════ -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <div class="nav-logo" onclick="showPage('home')">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbQAAABuCAYAAABP5ua7AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAG8NJREFUeNrsXb1y47qSxjm18Y5OdjPTT2D6CUyHJxo5uRtazrfK9hPIegLbVTe3HO5NLEc3NP0EQz+BOdnJlrMvcJfQNKwWBuAfAJKSv69K5R+RQOOvP3SjAQgBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMD+4rfPUMj/PP1HVP6I2L+K/3v572xHZE9M/y/lT9F9AQAA9ozQSqU/KX/E5Ucq/6Pyo/6etEhGElxBnzf6Xxqa/Iiw5OeASLet3BwFlUMYypGX5cg7kH9tnr7rp5ShUx2EJHmSacr6V1LzSk6fV9kmpWyrULL99eeXtm22Jeff/vUjDyHXf/3976o/x1r/zP/nn//M+9ANJMOM8lwGzkd+ijKfrOL7rPy+8JSn7IdXocvWQI6boWVQ+I8dJzHZUb82UC5NELPfp/RzTnkpwstIQaVNyKGGxM4pn4nHatEVrV6O0yqlX34v6/OhQ3nuynSvPbXrjZK3w7vXpRx3nvvYFbVVW8JQCiyhtKQSuy8/sq4KXzISmX1znAT94VnBSVmeKsal7IOnPamKhPrTkj6h8EB52erzkvrShUc5YipbGrhsVW2dDC0Dx+87SGRR+ZGd53/Lz60nMmvaeZTCfy9lmHYhsvLzUv76QmlNeq6+uEK2aRcyI1zZXKMd8NWR0H31M6l83mmwRh6SnFBa38ja8wXXfhSiDyrlLid9i/JzRgR2QX8veuzzqnxvgfNRfWRSKvlZxdjLAuT5OqBKjkcgw+5ZaDRbvqUBPAbIhly1kP+WZmhDomownTumfU6ztGCk2wDpDvQzqYReynwOPVlqB47vpwHKqCZ7x77ca11R5i8t9ruQeZBFGmmTsqXBUhQmd6RD2UJbnW36Xw5Ca65kYrJqJiMSK2so+4Rkj0cus6t8s7KsCw+uWBf4GFR9tJVyyflwu0UjqDObwq0lM3JZXbKxvbbq1Bobc2m9is068yNNoF7L524M6cnnnyWZlX/Lep6Uv5+yZ2aGCdx9+cyq/C4meVS9FvRd2mDsrIi4ppLkVPlp/Wxr/BEJzg19TZbzjr07JVm57lNlkxOvWCtbIrZd5AXVZ8ZkeSBZfpSfE1s56dnLGhlDWJ6dMXqXI63ruKwRDEZoIyOzwmYRkJyRhzwuh1TOLmTKrOi+2irx5Hp0nQR8D1A2RUYPpLhtZPZA42MqNuuNcry/sPfUGvlcbNyrOf3P5FWY03cFpTHl/YryVC7RCcs3IqL7RvnE9N2U5EkaENob89pMDf1a1Yt8/p08NjF7RpUzYrI+sTJMmNyC3k9Y2a7EZjkjorSV/BHrLwm9O9eee1LPkYzf6mRU3/m0PPeW0BzXdYKiofLsU0EOaZ1xK81l4uFCaKljX1ODvE9MXV7+688vPtotDVCuC9UfSJnGFstsRpbBaakQD8XPYIqUEQnvm9LK+K38HJMVUej9hfKR6aqIuy3rgQhrRn8fUlry529ERLf0/HX5vz9IpusGk7UDls+z4fmEEZ4gnTYhK0fmo8pfKHLQ6kfJeUx1cKNbffT8La9Pmbb46ZKcMHnUe0uqA/XcSmwHlT1ZZBRMxgk9M5otUKMlNAoffxipeGkD+adiPOt9fRHaxLHMJyEt5hoM0ddOHN+PAveLTiDCOSXlup7pU2i3yZo/U24ucmG9amVTFsBNA7lVmvcGy4l/f23YNqAijpe07iaY4hc1HiKVjyTSFVliMSOdI6U3iHTlR4bvXzMyjjRy4LJmFW2vvjtnxM/106Mmo+pzj1odqDqaEDnK9FODjFz/xdzyBKHVK5jJSGXLa8hsMkIyfmsww/QBF7ejC7F2dp2RWzsaoE1c84wd+/DF3/71I0jQBinVQ7Fxwc3JhcYJRK0TJerD+2ITC0C5JumnsmiWuuVE38dEOqYJ6VeNDNsgUVYL/b1iFipv55xZns+WvpBraS6r8mT9PtEIuK7P6XV6xP6fWGSMTTKK8BGku01oZN0kIybbuga8GiEZ5z1YaOsB03FLw8SxzlwsjfOB2sSV0I461pMkssPyswxZOGlxlR8Zsv/hgpQWCluPUmvM/DNjclZZAK9a31Xu4nsWjMLfrwtesK0F8U3hJkKNDF6bR61fyTQKsoiOLF6eD3Jg1lraYBKasijL3BCIo4fV257jRHdkqatYI9GDUFb+vllol2LcyHZN/ppTNOIRtF8cuE1sRBqNfPLkq85k+5+WJHYcmsgMxLZkyjlhcsv/n5o+5LprYwEo8rizWE5xTVo2S7BOBt2yUvnJvyO2Jy2zPa8TlNiOUKxr+7yG+D/C6tlEIrekV9RELupkHI2N0EYXtk+RX2NXMFmF/LNdss5IofuWdx3B1/JILBdCKxz2dI198uRq4UliuC9JLB1Y1glT0kru7zXh8FUWgOrTaiOzTHNpCJVPtfyrrKyigihte04TzWpRkK5LGaQx18qgLMG8ghijBkT+kY5NfuaGVfUw1aw19VxsIt0KKy7XJgw5LDQ7piNXInXK8+sIZc4clWIfRHEQqHx1mO0ik/3155e6SZ+0fqRb8WxoMqNw8pgpVtVedUExUQNCi1lfW1Qo30yzMrgF+ZEWj8ikNT+ZTl4Rlm5zIa40Ob5zOfg2AKofTg5Kv5ybtj0wGVO9LrQ1xVsi8pTStW2C1gktt8j44To1yAALzYKTkeuSugac9phXIwIWmzWMqhmmb7TdaO1ioXU6dseDNa3CtOcD9MPI0tZLssh6nzWT0rtlfXeitesFKVapENfBB+XPd03Byv54SpZblQVQsImTik7MKyynlPKZanlGFI4uXZVSfhmRmYrNIeEyn7O2pEtKPzOQxTP974l9P+HjnULi1XdSHl3WrTwpL1Vf71q6fPzbXIk66T5SnzbJWOc6BaF5VGy8s8tw01WVNWU4mSLRLIaINV4kNmfT2dLzQWayw1z3eD3MQcC0JWHcNHzWhVi7DirXYJAF9bXOhCb7YMe2PtL6+/rg4yZRi+qGhzLfG8/tnTMiS1h/lp97zco5FZuzWBOxOYl/xdoztU1WSOkrElqJzX4xXZYVPS83Wp+JzcbrhPJTJHJdfv+D+kRC78t3FzUuNSn3ynIqykJZj2xrgtxDJlg+KbXdpVZWVT9TJo+qv4mhblTZplrZFky2TFhuA9DqSsr4haWVUlnmYjvyMRUjOcNRYXTXx5SD7d8ekjke4r4zl5PiGQ5dT7xoKfM3EW7zd0HlKWpkkJOFd4d8TtuSgoc85XU8h0QOL33KLvHXn19eaJIlleGyIZHNmCKVk70z8clArrJbUuyfrvz7jlFZaJ5ObE8HvLzT1V266pPMPFrENqijh5Y1z0UumXS0cFyDQVYDD5dF07UxIjL91oA38clAZPbCLCAAhAYEJIdezXfP15jYMG9AaC4Tma6TF1f38OOQHa2OzNh9gZeWCUP2mQYmIzM5YTwbU2Qe4A+/72GZEpqR9m1dRsI9/L1vJRP1kUcDy/vIIf28Q1tNHcueMS/AqBSjJDJyfUt36m1FOT+bQlfBHacgM1hou4aHclBLJbnweTtwD+TQN6H1dXCyutE2RN11cZ25BoN8WGfSRUw3mneFlz2ANKFSQQG1aQ7olh8EKroSKh8WWp/w2eHWNw73aK0lrmXvkXx9WEZtreYoELG2Uswkh6u7cTmWSQW7wV1aZLOGBPmpyAwAoQ2CAAERE7LWXnpYL3INfx9i9tjn1TZzi0KOe6431wnOaoCJh6ne5CThiRHZmD0BAPApLTSJNJD19E1e4Oh4X1cVIsf3h9jPEfWYl+2uNCcZOrjOvLkbByQzdZBvV0vzuwBGA3mqB902EKE23DDGNbRnEe70iiuxOcHiLgBpuuC8lMvnKSmvVRtnPW2R6FL/Nx6txFaTHw/BIPLYs0HD9T0dppz2JW+ppOW+0oIukfSi/MXPyydlHawDPWrOgxwjgSU0IVnRXjh1kfFCND+IANgRQuM3x4bA+oyzUjHImbqXEzk8uTMjzxaTdEktK9y4Q8wGzw0D1oXE856ts9UIxoePvpb3ISg7C9Cni3POyEydSLJThCZ+PcFfjcVCAE4YncuRFHDak2KQa2sPNQELTclojKgaIEcDyBMZgnRc6q6x68xTMMh9gDr50jOhFT1u3ldt68Wdrl3ieeFhQjQU9FsEluLnRu8lKGn/LDRBpnfSU15ygEwd3ZDxCOuwLmpyKJkvtYHrQmhpy3Z2rc8QwRRt28F1IhIsIIQ2L08Nijs3WG4f1hvdfdYE6uLcpai+xVp5OxI2sVvx/WfsmYxklgf/3jDiVO5p07vqsF51u7Nqw5XpnMTy+anYvijUel0Lk+uXiQhPm2TkeUv5frmNm2RNxPYByLm+F6+qTfht32Jz+s+aiOlg5GldHXxqQpNuwJJg1MGjfUC5IeXVL2cdotiORliNdbPwoQgtVgfyeljHazNwXN2N9yNp16jHOmtjOT1VTEJzplwf9L5X/n/V8FzFj2tiSJH+Uh/aif8ct/JwYqaoXxhhKWV/Q3er3Yrt7Q/y3Qu6qFSIzaHKhfbcnOdB5X2ytRmVQd3aLdvlmCZec0s9H9OhzCYZ1TN3dNCyrU3m9Nz6RoOKNpFXzqjjwdQan6m8lXXQN8Z8UshC9B9eLBv/vcOa2BgtNKubh6INh7yE9NJDvTW+1JOI05UIViNpV9e+FiLCUSlOOV7Xp3EIdlYiKU6lYGOqy1N6VpLdlN3sbCPNmTBfE6O3q3JBXjM5rhkR6e8pWY7J0nhg+udUbG7XuNX0hHr3THturpF8xPLgsqRae6oyLcX27d1nYrN0MCFL6oHqYsGeU2T7o6ZNigZtoq72mWl1VbB6XTG5L7Q6GOzS3NGeFCKVVamIZCW996x81zMmmXcLF1M0wirMR0zAU1rT6utST+dgkAEOjbYRsyu8ThKZS0vWzym7MVq/P+tKKXdujdFzDw3GkLJa+LaJlBTvhF2REjHXl2ozqbxlH4g1l560Qi6YLE/0K4+clO+eUD4JG1db79Jzcza2ZhXl5eNTPf+mrDY+dsvnXxiRp0zG6/LvO/bcJZOjqk0mLH2bjIoQT4go1SThQtUL1aOcADwzy1XVwWD6cNRnOdIM/HAAS209c2myZ22g8HdXxeVKaD6slbno4VBidkivC55H0qaRhzGV+p6c0M977U4w3fL4yiynphMvbp1Fgt2kTOQyMfTnj1uVdYueje1Y92IQCUREVGmDNsg1GXUCV+W9t4w9FeF4ZOvPdGO2srKuWX0XnMwMcqlx9VjTJueWNuF19fGeVi+/1AO7xXqwyd/oz3Jkltpc9LemphrsVlTf9jxW66xuw7HLml9GdZI4Ws6uJPO9p3wKEdbdGAV6tq3V3hU2hZxoilspu3eyANrgnJX/pcZatE12lFLOyFrT60PJm9DeOVv9zSz9LzZZXgZy1OvLRpAPlFemrKyG5cvJolQWrEnG14Zt8maw6hRODHLHIbwAe0VozFK7LontuaF7whfUJux8xwitrkO5yJzRJONeuF9m2ofrzPnes8BHXbVpC9cQ9RCEZlNiH6Hp2n40m7W7tJBUIjbus0dDfajvU5ss5B6bsP+bnjtichgnS0QWRzVkwUkga1BfiSLaKjKrqmtGdKnWp5q0ialeuSfGZnVFFVbbYHft7dRp+xQZd9yztTavsdLGuA+mTnElHiyj5ZCE1sR15ikY5HFE7TrG+/aUYissRJ2x359VaHzL8Sdxr7vZSqV8o/XlyGI9JZqCj3USYe8+dnE5apYXD9E3vV+wEP0tcqwgM573j4q65uUrKqzICSvvTYXVe6X3HSLsqKHVBkIbmbU2rSG0XYtwdK2vlNpBXpuyFO4uvZCWxrmHvOZlOedDN6inyNQQrqB12LYWmMEtj5wp7lZBQPReQnksK8pzpClUfb+War9ng7UmNPKpq2PbGh0nlYkpLcPJKVvkWH5/W0FmVfiqEbmtTbjbNdHqzoYDQ99pY7WB0EZmrU3UvqlASsY3MlF94oDP0+3vx0ponoJBXK3ZMVlnoWbOK6rnl1JJKnfiF83yyEjJzmit5lkrky0QQxHR0qLcdRJSBJEwt5+6sVvmsdJcbRzPNHl9INJTltaElPRNzRrWB4ETOcmfMUUlvlnIIdGI6IrV25W2rnVH/5d1cknp8/LxdFWbPFCbFKwsmSId2kM2JavQ1iYm8opbWG0gtI7W2m1AaykR5lMpfOR32HNIuOver5zVf1bWfTqA0m/iOpuJ/ULsYbyEsNCuSbbYIGNOylO612Rg1xO1y6yh5ThjE6cmBB1pRMi9CmcaiWz1IRl6Tutjpo3ZUs/cMOLU17AmGoELyk/diKAfuaZHOHLijy0T9DsiIeUVeWB1kIvNqSe8TUx5c9mbtEkitFNKLPUweEDIzhMat9bKH8d09fx8x5RM3zMa1whHHfcDEFqTQXO5K/1XuoEb9INRHnlFltMxOw7qIz9uVZFCPGQWkmjgnpIKNze499S70p0pvTSF5s7jYej6+3c2i5BO2Fho4/rjfSKUU70uGWFnWnn/qCmvlPNe/a/8aapHQYSiNkRflM/cM8sxVW5U9oypTc6JtN5atsmx+HUtcKnXoa1u+sZvezaLVSffP3i21mSk25khrwdHSyAt0z3tuX6+OdTNXSnvtSHNd9FvtOdxlbVBfeDbDnXb07ogF7oDzWXiIG9euBB7Cnbk1aJD4MlegyzIbzRGj4c8axEWWge3Cu1bu/XodrKtk7kq8SE6lgvR2/Z+LZgLpJc23hfrrAVcreB9v9TzYMAxNSbykmQ+F5t1SzXm1Wkje10/v+9joeTaGs1GQ5+/t1NKxsO9bbbBsBL93eWU1ZSRnwa+L14HH9Zv+gn0efrZCY3qQB+PazesdlQXLLQdxL0n5fYaSMn0PficCM3mFqON1kvRz97AvOb7qRhf5Omg7daw3nYacv1LAGr9K/2s5f8dXaAznAktwLl6IWWuU4h9Xa9SdwrBProbd+lSTwAAoY14ZmuzpBJXJTNAfbicapLXkLP8ftlDGayTAHKpxnvYT0d7qScAgNB6AK2l+Arh3xeF4GKhNdn71ccxUfkeWmeTgO0GQgM+DQZfQyPieWCDWloub2wgKksma3Gho1xHuRV+1lJyi7vG9QxHeQLJtEx71WM9uyjGWqVIp7ekIuC+NJvrbB+DQTx6GrwHH7ErXe5aHNFUld76GDt2S/IgoOOnZH1fN40IpP1e8r1XbBn45IRGHUFXRFOL0uKz9Lxi8PsMCkgDll3eucZJ29Vyua4gfZ9HXtVZaaEIraot9jEYZJSXerJxK+v7zlN6s4AkJevQukHb0I+ilmMyoc+rAD49oXVRtJHobyPv/QjLb8NbhYJxjXDMGj63pMN8Q7RPlQw+3I0Xols0YMhj15zr0XfwETsnsfBkncWhJo98w7X4eXxVkz6WNiQ/hYOWkz4AhDYI0gpFnonxHFyrUDQYdH3M8O/Fr+fh+cB3ixXjIxhEupaXHa2osdyX5mJZdxmzmecyhrAkj9qQZUlkZyOoD2AXCc3DRt/QWFR892OE8maBJg5tlaIkhrnw7wK0lc/HNTH3A7ZbVRTjmC/1fCUrSLrpnog0JmL7PjC5FrVkFtOU+kZsm7CUz6yPaSrf+0OzttRRc6d0duANtb1O+teG/vdCp9cvSC454VqJzc3rC6ormcfH8Vm0Vqh7HOT7GVvvM92vBgyAoaMcx0xoqxpXTTo2gWvcgi51/dZSDtv9VaEIbeajvQdsuknAMRJiXedII0slo/JY3FF9rgO+1H1ojPhiGj8L6ieF1r5xjSWXM6KZUBoL+qQk10Jsu99T9lHyTylPJUfEy0WE+aDlsaS/E3qm6nZq4DNZaKLfA23bzmovapR2Sq6msQQiVB3WGznK2YW8pcXj8+SQwhTwUpZt5qENVmPceDziSz0jjdAUQVxo1piyqCJ69tbynLKSsqZ3jpXPfWVpGScjRKSyD6Y8epIiGSW2Duot/3/CCDMiwizIIsxYmjM2JuKAljCwYxbayQjrRHbgs4ZbBO5HJHcWcOLQerASQax6KJ8Pd+PzSMfnWI+8UsSiK/WVzfIkopL9MONkxvpnTgEmRkJjt16nWrnm7D4yW/3lhv8XBhdhzMqlIq31A331NJMuXgxgPwltbBbaejbW4iLEOzHMiR8mfK9TQF3hYL34JHzbeZqJa5t3DQbZBULzfaknI5ZMG8emiMcJU/5T0+TBcIN0ZOnPOpGoNS/5/3dyZ9rq700jVhNhKms41ybbz5Y0lXwHDl4MAIQWDHlLMvu4MXsk8lcNqINA6dbVTyr8ubxMpOojVH854vE5xiOvtohFu1jTZsnlFYo/1iYsJ5b0tshJXWIpNmt1T+TiNNVfZtA5tvQzy996mqmWXi6Az0tonjaM+oIcFMddZrM0ux+DUgwVEOKqFH1ZaSaFMfOQro/julwDL+qCIMZIaG9VBGHYW2ZT/AcmC81wo/Qv5CRJjcLsz8hTMqNgEVFBSnGNBfhWY3Xq5eWkDXxyC20MVplcL2u6ZmYjtQtRHeIfGkWN/CEu9WxD+M6DXY849RQMkvl2yXWErRyuk74Q9+3pxBJpRFBnCRVVFl8FidvSExQUcmF430RKNgvQdEFobhlL6zRDbggHdo/QCjHc+pPsqBelMjv0dZZimc5N+eN0INdDVYRjqEs9+7SCTG30dSTWWSgPRuQhmRCKVre0TizKX7eE1Pe3WhBHrFlkBVl4ibL0KHx+i0h4GvT7uel9Q/+1EaNOrOsAFbU2J9MrPy8WMod1NhIMFrYvZ8bloJU+8CkNikSEDYHPaYDfh5qVkxVxSNbDpehvn10oxVx4Ojbpjggo7thupnVK14OIQ+2V6ypLU6ut78mI0dpnkX86IdksOXXZrhwbM9rkbJJTPifD5V+0Z/hzD0Q2pu+XGslIIvo3keEfYjui8hdrmJVLyfHE8rHtl0OE42cnNCKAnJTdHbMmVHjvidg+daDLYM6os6V9upbUuhrNsn0Sds4Gqlq3WVWVjSYO1x0smlx4Wv+iG62l9Xol2m3VkBFmS4s79UJ0D9nPaWLjy0Mg+++Xjn1VyrCwtNtCdNvaIsv36LF8HAvNIllUTLJelfKXRFESwzER2onWhz/IUJ7QUT6Xs/76St9PGZEsqK6PxGZTsxznK0VUtFftVGxOEnlm72aWchUN5Vhpcg+5KR9g+G1XBG0RRJIFGsh9l2MnygMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACEwP8LMABlxjRRiM1J1QAAAABJRU5ErkJggg==" alt="SENAI Minas Gerais" style="height:36px;width:auto;display:block;filter:brightness(0) invert(1);" />
+        <div class="nav-logo-text">
+          <span class="nav-logo-sub">Minas Gerais</span>
+        </div>
+      </div>
+
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#" onclick="showPage('home')" class="nav-link" data-page="home">Home</a></li>
+        <li><a href="#" onclick="showPage('info')" class="nav-link" data-page="info">Informações</a></li>
+        <li><a href="#" onclick="showPage('ajuda')" class="nav-link" data-page="ajuda">Ajuda</a></li>
+        <li><a href="#" onclick="showPage('quiz')" class="nav-link" data-page="quiz">Quiz</a></li>
+        <li><a href="#" onclick="showPage('protocolo')" class="nav-link" data-page="protocolo">Meu Protocolo</a></li>
+        <li><a href="#" onclick="showPage('painel')" class="nav-link" data-page="painel" style="color:rgba(255,255,255,.5);font-size:.8rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;display:inline;margin-right:4px;vertical-align:middle"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Painel</a></li>
+        <li>
+          <a href="#" onclick="showPage('denuncia')" class="btn-nav-cta desktop">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+            Denunciar
+          </a>
+        </li>
+      </ul>
+
+      <button class="btn-darkmode" onclick="toggleDark()" title="Alternar modo escuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button><button class="nav-hamburger" id="hamburger" onclick="toggleMobile()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+    <div class="nav-mobile" id="nav-mobile">
+      <ul>
+        <li><a href="#" onclick="showPage('home');toggleMobile()">Home</a></li>
+        <li><a href="#" onclick="showPage('info');toggleMobile()">Informações</a></li>
+        <li><a href="#" onclick="showPage('ajuda');toggleMobile()">Ajuda</a></li>
+        <li><a href="#" onclick="showPage('quiz');toggleMobile()">Quiz</a></li>
+        <li><a href="#" onclick="showPage('protocolo');toggleMobile()">Meu Protocolo</a></li>
+        <li><a href="#" onclick="showPage('painel');toggleMobile()">Painel</a></li>
+        <li>
+          <a href="#" class="btn-nav-cta" onclick="showPage('denuncia');toggleMobile()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:15px;height:15px"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+            Denunciar
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ════════════════════════════════════════
+       PAGE: HOME
+  ════════════════════════════════════════ -->
+  <div id="page-home" class="page active">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-geo"><div class="hero-geo-dot"></div></div>
+      <div class="hero-bg"></div>
+      <div class="hero-stripe"></div>
+
+      <div class="hero-content">
+        <div class="hero-left">
+          <div class="hero-badge anim-up d1">
+            <span></span> Campanha Institucional SENAI MG
+          </div>
+          <h1 class="hero-title anim-up d2">
+            Sua voz pode<br><span class="hl">transformar</span><br>realidades
+          </h1>
+          <p class="hero-desc anim-up d3">
+            O <strong>SENAI Minas Gerais</strong> é a plataforma oficial no combate ao bullying escolar. Aqui você encontra informação, apoio e pode denunciar com segurança e sigilo.
+          </p>
+          <div class="hero-btns anim-up d4">
+            <button class="btn-primary" onclick="showPage('denuncia')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:17px;height:17px"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+              Fazer uma Denúncia
+            </button>
+            <button class="btn-outline" onclick="showPage('ajuda')">
+              Preciso de Ajuda
+            </button>
+          </div>
+          <div class="hero-stats anim-up d5">
+            <div class="hero-stat">
+              <div class="hero-stat-num">30<span>%</span></div>
+              <div class="hero-stat-label">dos alunos já<br>sofreram bullying</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-num">1<span>em</span>3</div>
+              <div class="hero-stat-label">casos não são<br>reportados</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-num">100<span>%</span></div>
+              <div class="hero-stat-label">sigilo garantido<br>na denúncia</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-right anim-in d3">
+          <div class="hero-card">
+            <div class="hero-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              Nossos Pilares
+            </div>
+            <div class="hero-pillar">
+              <div class="hero-pillar-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              </div>
+              <div class="hero-pillar-text">
+                <strong>Prevenção</strong>
+                <p>Educação e conscientização para identificar e prevenir o bullying antes que aconteça.</p>
+              </div>
+            </div>
+            <div class="hero-pillar">
+              <div class="hero-pillar-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+              </div>
+              <div class="hero-pillar-text">
+                <strong>Acolhimento</strong>
+                <p>Suporte emocional e orientação para vítimas, famílias e toda a comunidade escolar.</p>
+              </div>
+            </div>
+            <div class="hero-pillar">
+              <div class="hero-pillar-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <div class="hero-pillar-text">
+                <strong>Responsabilização</strong>
+                <p>Canal seguro de denúncia com encaminhamento para a equipe pedagógica competente.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pilares da Campanha -->
+    <section class="pillars-section">
+      <div class="section-wrap">
+        <div class="pillars-header reveal">
+          <div class="section-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+            Pilares da Campanha
+          </div>
+          <h2 class="section-title">Por que esta <span>campanha</span> existe?</h2>
+          <p style="max-width:580px;margin:0 auto;">Uma iniciativa estruturada em quatro grandes pilares para garantir um ambiente escolar seguro e respeitoso para todos.</p>
+        </div>
+
+        <div class="pillars-grid">
+          <div class="pillar-card reveal">
+            <div class="pillar-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </div>
+            <h3>Educação & Prevenção</h3>
+            <p>Capacitar alunos, professores e funcionários para identificar, prevenir e combater o bullying em suas diversas formas.</p>
+          </div>
+          <div class="pillar-card reveal">
+            <div class="pillar-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            </div>
+            <h3>Acolhimento & Apoio</h3>
+            <p>Oferecer escuta qualificada e encaminhamento adequado para todas as partes envolvidas em situações de bullying.</p>
+          </div>
+          <div class="pillar-card reveal">
+            <div class="pillar-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            </div>
+            <h3>Denúncia Segura</h3>
+            <p>Canal confidencial e acessível para registrar ocorrências com agilidade, sigilo e garantia de acompanhamento.</p>
+          </div>
+          <div class="pillar-card reveal">
+            <div class="pillar-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <h3>Responsabilização</h3>
+            <p>Assegurar que casos denunciados sejam devidamente investigados e que medidas educativas e legais sejam tomadas.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Frases de Prosperidade -->
+    <section class="quotes-section">
+      <div class="section-wrap">
+        <div class="quotes-header reveal">
+          <div class="section-label">Palavras que Inspiram</div>
+          <h2 class="section-title" style="color:#fff;">Transforme o ambiente<br>com a sua <span style="color:var(--laranja-claro)">voz</span></h2>
+        </div>
+        <div class="quotes-grid">
+          <div class="quote-card reveal">
+            <div class="quote-mark">"</div>
+            <p class="quote-text">Ninguém nasce odiando outra pessoa. As pessoas aprendem a odiar, e se podem aprender a odiar, podem ser ensinadas a amar.</p>
+            <div class="quote-author">Nelson Mandela</div>
+          </div>
+          <div class="quote-card reveal">
+            <div class="quote-mark">"</div>
+            <p class="quote-text">A violência é o recurso de quem não tem argumentos. A paz começa quando escolhemos o respeito como caminho.</p>
+            <div class="quote-author">SENAI Minas Gerais</div>
+          </div>
+          <div class="quote-card reveal">
+            <div class="quote-mark">"</div>
+            <p class="quote-text">Ser diferente é um presente. Respeitar as diferenças é sabedoria. Celebrá-las é o que nos torna humanos.</p>
+            <div class="quote-author">Campanha SENAI MG</div>
+          </div>
+          <div class="quote-card reveal">
+            <div class="quote-mark">"</div>
+            <p class="quote-text">Cada criança que você encorajou é uma semente de gentileza que crescerá e mudará o mundo ao redor dela.</p>
+            <div class="quote-author">Autoria Institucional SENAI</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <div class="section-wrap">
+        <div class="cta-box reveal">
+          <div class="cta-box-content">
+            <h2>Você não precisa enfrentar isso sozinho</h2>
+            <p>Se você está sofrendo bullying ou conhece alguém que está, tome uma atitude agora. A escola, a família e o SENAI estão do seu lado.</p>
+            <div class="cta-btns">
+              <button class="btn-primary" onclick="showPage('denuncia')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:17px;height:17px"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                Fazer Denúncia
+              </button>
+              <button class="btn-outline" onclick="showPage('ajuda')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:17px;height:17px"><path d="M18.364 5.636a9 9 0 11-12.728 0M12 3v9"/></svg>
+                Buscar Ajuda
+              </button>
+              <button class="btn-outline" onclick="showPage('info')">
+                Saber Mais
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PAGE: INFORMAÇÕES
+  ════════════════════════════════════════ -->
+  <div id="page-info" class="page">
+    <div class="page-hero">
+      <div class="section-label" style="margin:0 auto 1rem;background:rgba(244,121,32,.18);border-color:rgba(244,121,32,.35);color:var(--laranja-claro);">Educação & Informação</div>
+      <h1>O que é <span style="color:var(--laranja-claro)">Bullying</span>?</h1>
+      <p>Conheça os tipos, as consequências e a legislação brasileira que protege você e seus colegas.</p>
+    </div>
+
+    <section class="info-section">
+      <div class="section-wrap">
+        <div class="info-intro reveal">
+          <div class="section-label" style="margin:0 auto 1rem">Definição</div>
+          <h2 class="section-title" style="text-align:center">Entenda o <span>bullying</span></h2>
+          <p style="text-align:center;font-size:1rem;">Bullying é toda forma de violência física, verbal ou psicológica que ocorre de maneira repetida e intencional entre estudantes, dentro de uma relação desigual de poder. Diferente de uma briga isolada, o bullying tem características específicas: <strong>intenção, repetição e desequilíbrio de poder</strong>.</p>
+        </div>
+
+        <h2 class="tipos-title reveal">Tipos de Bullying</h2>
+        <div class="tipos-grid">
+          <div class="tipo-card verbal reveal">
+            <div class="tipo-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            </div>
+            <h3>Bullying Verbal</h3>
+            <p>Inclui xingamentos, apelidos pejorativos, humilhações públicas, ameaças e comentários depreciativos sobre aparência, origem ou características pessoais.</p>
+          </div>
+          <div class="tipo-card fisico reveal">
+            <div class="tipo-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z"/></svg>
+            </div>
+            <h3>Bullying Físico</h3>
+            <p>Agressões com contato corporal como empurrões, tapas, socos, chutes, bem como danos a objetos pertencentes à vítima.</p>
+          </div>
+          <div class="tipo-card psico reveal">
+            <div class="tipo-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h3>Bullying Psicológico</h3>
+            <p>Exclusão social, isolamento, espalhamento de boatos, manipulação, ameaças veladas e comportamentos que visam prejudicar a autoestima da vítima.</p>
+          </div>
+          <div class="tipo-card cyber reveal">
+            <div class="tipo-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            </div>
+            <h3>Cyberbullying</h3>
+            <p>Agressões realizadas por meios digitais: redes sociais, aplicativos de mensagens, jogos online. Inclui divulgação de imagens sem consentimento e criação de perfis falsos para difamar.</p>
+          </div>
+        </div>
+
+        <!-- Consequências -->
+        <div class="consequencias">
+          <div class="section-wrap">
+            <div class="reveal" style="text-align:center;margin-bottom:2rem">
+              <div class="section-label" style="margin:0 auto 1rem">Impactos Reais</div>
+              <h2 class="section-title">Consequências do <span>Bullying</span></h2>
+            </div>
+            <div class="conseq-grid reveal">
+              <div class="conseq-box vitima">
+                <h3>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                  Para a Vítima
+                </h3>
+                <ul class="conseq-list">
+                  <li>Queda no rendimento escolar e desmotivação</li>
+                  <li>Ansiedade, depressão e transtornos do sono</li>
+                  <li>Baixa autoestima e dificuldade de socialização</li>
+                  <li>Medo de frequentar a escola (fobia escolar)</li>
+                  <li>Pensamentos de automutilação em casos graves</li>
+                  <li>Sequelas psicológicas que persistem na vida adulta</li>
+                </ul>
+              </div>
+              <div class="conseq-box agressor">
+                <h3>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                  Para o Agressor
+                </h3>
+                <ul class="conseq-list">
+                  <li>Responsabilização escolar, suspensão e expulsão</li>
+                  <li>Medidas socioeducativas previstas em lei</li>
+                  <li>Dificuldade em criar vínculos saudáveis</li>
+                  <li>Maior propensão à criminalidade na vida adulta</li>
+                  <li>Problemas emocionais e relacionais</li>
+                  <li>Responsabilidade civil e criminal dos pais (menores)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legislação -->
+        <div class="leg-section">
+          <div class="reveal" style="text-align:center;margin-bottom:2.5rem">
+            <div class="section-label" style="margin:0 auto 1rem">Amparo Legal</div>
+            <h2 class="section-title">Legislação <span>Brasileira</span></h2>
+            <p style="max-width:580px;margin:0 auto;">O Brasil possui legislação específica para combater o bullying nas escolas. Conheça as principais leis que protegem você.</p>
+          </div>
+          <div class="leg-grid reveal">
+            <div class="leg-card">
+              <div class="leg-card-num">Lei nº<br>13.185</div>
+              <h3>Programa de Combate à Intimidação Sistemática</h3>
+              <p>Instituiu o Programa de Combate à Intimidação Sistemática (bullying) em todo o território nacional, definindo bullying e determinando ações de prevenção, diagnóstico e combate em escolas públicas e privadas.</p>
+              <span class="leg-tag">Vigência: desde 2015</span>
+            </div>
+            <div class="leg-card">
+              <div class="leg-card-num">Lei nº<br>13.663</div>
+              <h3>Promoção de Cultura de Paz nas Escolas</h3>
+              <p>Alterou a Lei de Diretrizes e Bases da Educação (LDB) para incluir entre as incumbências dos estabelecimentos de ensino a promoção de medidas de conscientização, de prevenção e de combate a todos os tipos de violência e a promoção da cultura de paz.</p>
+              <span class="leg-tag">Vigência: desde 2018</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PAGE: AJUDA
+  ════════════════════════════════════════ -->
+  <div id="page-ajuda" class="page">
+    <div class="page-hero">
+      <div class="section-label" style="margin:0 auto 1rem;background:rgba(244,121,32,.18);border-color:rgba(244,121,32,.35);color:var(--laranja-claro);">Apoio & Orientação</div>
+      <h1>Como <span style="color:var(--laranja-claro)">Buscar Ajuda</span>?</h1>
+      <p>Você não está sozinho. Existem pessoas e recursos prontos para te ouvir e ajudar. Veja como dar o primeiro passo.</p>
+    </div>
+
+    <section class="ajuda-section">
+      <div class="section-wrap">
+        <div class="reveal" style="text-align:center;margin-bottom:3rem">
+          <div class="section-label" style="margin:0 auto 1rem">Primeiros Passos</div>
+          <h2 class="section-title">A quem <span>recorrer</span>?</h2>
+        </div>
+
+        <div class="ajuda-grid">
+          <div class="ajuda-card reveal">
+            <div class="ajuda-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            </div>
+            <h3>Escola & Pedagogia</h3>
+            <p>Procure a coordenação pedagógica, o orientador educacional ou um professor de confiança. Eles são treinados para lidar com essas situações com sigilo e responsabilidade.</p>
+          </div>
+          <div class="ajuda-card reveal">
+            <div class="ajuda-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <h3>Família & Responsáveis</h3>
+            <p>Conversar com um adulto da família é um passo fundamental. Pais, mães e responsáveis podem agir junto à escola e às autoridades para garantir sua proteção.</p>
+          </div>
+          <div class="ajuda-card reveal">
+            <div class="ajuda-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <h3>Amigos & Colegas</h3>
+            <p>Ter um amigo por perto faz diferença. Se você presenciar bullying, não fique em silêncio — apoie a vítima, não ria e avise um adulto responsável.</p>
+          </div>
+          <div class="ajuda-card reveal">
+            <div class="ajuda-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <h3>Autoridades</h3>
+            <p>Em casos graves com ameaças ou violência física, registre boletim de ocorrência. O Conselho Tutelar e o Ministério Público também podem atuar na proteção do menor.</p>
+          </div>
+        </div>
+
+        <!-- Recursos Emocionais -->
+        <div class="recursos-section">
+          <div class="section-wrap">
+            <div class="reveal" style="margin-bottom:2rem">
+              <div class="section-label" style="margin-bottom:1rem">Autocuidado</div>
+              <h2 class="section-title">Recursos <span>Emocionais</span></h2>
+              <p>Estratégias práticas para fortalecer sua saúde emocional durante e após situações difíceis.</p>
+            </div>
+            <div class="recursos-grid reveal">
+              <div class="recurso-item"><div class="recurso-bullet"></div><span>Escreva sobre seus sentimentos em um diário</span></div>
+              <div class="recurso-item"><div class="recurso-bullet"></div><span>Pratique respiração profunda e meditação</span></div>
+              <div class="recurso-item"><div class="recurso-bullet"></div><span>Mantenha atividades físicas regulares</span></div>
+              <div class="recurso-item"><div class="recurso-bullet"></div><span>Evite o isolamento — mantenha contato social</span></div>
+              <div class="recurso-item"><div class="recurso-bullet"></div><span>Procure acompanhamento psicológico</span></div>
+              <div class="recurso-item"><div class="recurso-bullet"></div><span>Fortaleça seus hobbies e atividades de lazer</span></div>
+              <div class="recurso-item"><div class="recurso-bullet"></div><span>Evite reagir às provocações online</span></div>
+              <div class="recurso-item"><div class="recurso-bullet"></div><span>Salve evidências de cyberbullying (prints)</span></div>
+              <div class="recurso-item"><div class="recurso-bullet"></div><span>Bloqueie e reporte agressores nas redes sociais</span></div>
+              <div class="recurso-item"><div class="recurso-bullet"></div><span>Lembre-se: a culpa nunca é da vítima</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Disque 100 -->
+        <div class="reveal">
+          <div class="disque-box">
+            <div class="disque-content">
+              <div class="disque-ring">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#fff"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.014 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>
+              </div>
+              <h2>Disque Direitos Humanos</h2>
+              <div class="disque-num">100</div>
+              <p>Serviço gratuito, disponível 24 horas por dia, 7 dias por semana. Você pode denunciar violações aos direitos humanos, incluindo violência contra crianças e adolescentes, de forma anônima e segura.</p>
+              <button class="btn-disque" onclick="window.open('tel:100')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px;color:#C53030"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.014 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>
+                Ligar agora: Disque 100
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PAGE: DENUNCIAR
+  ════════════════════════════════════════ -->
+  <div id="page-denuncia" class="page">
+    <div class="page-hero">
+      <div class="section-label" style="margin:0 auto 1rem;background:rgba(244,121,32,.18);border-color:rgba(244,121,32,.35);color:var(--laranja-claro);">Canal Confidencial</div>
+      <h1>Faça uma <span style="color:var(--laranja-claro)">Denúncia</span></h1>
+      <p>Todas as informações são tratadas com absoluto sigilo pela equipe pedagógica. Você pode denunciar de forma anônima.</p>
+    </div>
+
+    <section class="denuncia-section">
+      <div class="section-wrap">
+        <div class="denuncia-wrap">
+
+          <!-- Toggle Anônimo -->
+          <div class="anon-toggle reveal" id="anon-toggle" onclick="toggleAnon()">
+            <div class="anon-toggle-left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              <div class="anon-toggle-text">
+                <strong>Denúncia Anônima</strong>
+                <span>Ative para ocultar seus dados de identificação</span>
+              </div>
+            </div>
+            <label class="switch" onclick="event.stopPropagation()">
+              <input type="checkbox" id="anon-check" onchange="toggleAnon()">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- Formulário -->
+          <div class="form-card reveal">
+            <form id="denuncia-form" onsubmit="submitForm(event)">
+
+              <!-- Campos de Identificação -->
+              <div class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                Identificação
+              </div>
+              <div id="identif-fields" class="visible">
+                <div class="form-grid" style="margin-bottom:1.25rem">
+                  <div class="form-group">
+                    <label class="form-label" for="nome">Nome Completo <span style="color:var(--cinza-medio)">(opcional)</span></label>
+                    <input class="form-input" type="text" id="nome" name="nome" placeholder="Seu nome completo" />
+                    <span class="form-hint">Deixe em branco para manter o anonimato</span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="ra">RA do Aluno <span class="req">*</span></label>
+                    <input class="form-input" type="text" id="ra" name="ra" placeholder="Ex: 12345678" />
+                    <span class="form-hint">Obrigatório para denúncia identificada</span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="email-denunciante">Seu E-mail <span class="req">*</span></label>
+                    <input class="form-input" type="email" id="email-denunciante" name="email-denunciante" placeholder="seuemail@exemplo.com" />
+                    <span class="form-hint">Você receberá uma confirmação da denúncia neste e-mail</span>
+                  </div>
+                  <div class="form-group full">
+                    <label class="form-label" for="turma">Turma <span class="req">*</span></label>
+                    <select class="form-select" id="turma" name="turma">
+                      <option value="" disabled selected>Selecione sua turma</option>
+                      <optgroup label="Automação Industrial">
+                        <option>AI-GEI-01</option>
+                        <option>AI-GEI-02</option>
+                        <option>AI-GEI-03</option>
+                        <option>AI-GEI-04</option>
+                        <option>AI-GEI-05</option>
+                      </optgroup>
+                      <optgroup label="Edificações">
+                        <option>ED-GEI-01</option>
+                        <option>ED-GEI-02</option>
+                        <option>ED-GEI-03</option>
+                        <option>ED-GEI-04</option>
+                      </optgroup>
+                      <optgroup label="Eletrotécnica">
+                        <option>ET-GEI-01</option>
+                        <option>ET-GEI-02</option>
+                        <option>ET-GEI-03</option>
+                        <option>ET-GEI-04</option>
+                      </optgroup>
+                      <optgroup label="Informática">
+                        <option>IN-GEI-01</option>
+                        <option>IN-GEI-02</option>
+                        <option>IN-GEI-03</option>
+                        <option>IN-GEI-04</option>
+                      </optgroup>
+                      <optgroup label="Mecânica">
+                        <option>ME-GEI-01</option>
+                        <option>ME-GEI-02</option>
+                        <option>ME-GEI-03</option>
+                        <option>ME-GEI-04</option>
+                      </optgroup>
+                      <optgroup label="Mecatrônica">
+                        <option>MT-GEI-01</option>
+                        <option>MT-GEI-02</option>
+                        <option>MT-GEI-03</option>
+                        <option>MT-GEI-04</option>
+                      </optgroup>
+                      <optgroup label="Química">
+                        <option>QU-GEI-01</option>
+                        <option>QU-GEI-02</option>
+                        <option>QU-GEI-03</option>
+                      </optgroup>
+                    </select>
+                    <span class="form-hint">Selecione a turma à qual você pertence</span>
+                  </div>
+                </div>
+              </div>
+
+              <hr class="form-divider" />
+
+              <!-- Dados da Ocorrência -->
+              <div class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Dados da Ocorrência
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label" for="local">Local da Ocorrência <span class="req">*</span></label>
+                  <select class="form-select" id="local" name="local" required>
+                    <option value="" disabled selected>Selecione o local</option>
+                    <option>Sala de Aula</option>
+                    <option>Corredor</option>
+                    <option>Quadra / Área Esportiva</option>
+                    <option>Refeitório / Cantina</option>
+                    <option>Banheiro</option>
+                    <option>Pátio / Área Externa</option>
+                    <option>Ambiente Online / Redes Sociais</option>
+                    <option>Outro</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="data">Data da Ocorrência <span class="req">*</span></label>
+                  <input class="form-input" type="date" id="data" name="data" required
+                    min="2026-01-01" />
+                  <span class="form-hint">Apenas datas a partir de 01/01/2026</span>
+                </div>
+                <div class="form-group full">
+                  <label class="form-label" for="envolvidos">Pessoas Envolvidas</label>
+                  <input class="form-input" type="text" id="envolvidos" name="envolvidos" placeholder="Nome ou descrição dos envolvidos (vítima, agressor, testemunhas)" />
+                  <span class="form-hint">Você pode descrever sem usar nomes se preferir</span>
+                </div>
+                <div class="form-group full">
+                  <label class="form-label" for="descricao">Descrição da Ocorrência <span class="req">*</span></label>
+                  <textarea class="form-textarea" id="descricao" name="descricao" required placeholder="Descreva com detalhes o que aconteceu: o tipo de bullying, como ocorreu, com que frequência, se há evidências (prints, fotos, vídeos) e qualquer informação relevante..."></textarea>
+                  <span class="form-hint">Seja o mais detalhado possível. Isso ajuda a equipe a agir com mais eficiência.</span>
+                </div>
+
+                <!-- UPLOAD DE ARQUIVOS -->
+                <div class="form-group full">
+                  <label class="form-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline;margin-right:4px;vertical-align:middle"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    Evidências — Fotos / Vídeos
+                    <span style="color:var(--cinza-medio);font-weight:400">(opcional)</span>
+                  </label>
+
+                  <!-- Área de drop -->
+                  <div id="upload-area" onclick="document.getElementById('arquivo-input').click()"
+                    style="border:2px dashed var(--cinza-borda);border-radius:12px;padding:1.5rem;
+                           text-align:center;cursor:pointer;transition:var(--transition);background:var(--cinza-claro);"
+                    ondragover="event.preventDefault();this.style.borderColor='var(--azul)'"
+                    ondragleave="this.style.borderColor='var(--cinza-borda)'"
+                    ondrop="handleDrop(event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                      style="width:36px;height:36px;color:var(--cinza-medio);margin:0 auto .5rem">
+                      <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0
+                        012.828 0L20 16M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0
+                        00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <p style="font-size:.85rem;color:var(--cinza-medio);margin:0">
+                      Clique ou arraste arquivos aqui
+                    </p>
+                    <p style="font-size:.75rem;color:var(--cinza-medio);margin:.3rem 0 0">
+                      JPG, PNG, MP4, PDF — máx. 10MB por arquivo
+                    </p>
+                  </div>
+
+                  <input type="file" id="arquivo-input" multiple accept="image/*,video/*,.pdf"
+                    style="display:none" onchange="handleFiles(this.files)" />
+
+                  <!-- Preview dos arquivos selecionados -->
+                  <div id="upload-preview" style="display:none;margin-top:.75rem;
+                    display:flex;flex-wrap:wrap;gap:.5rem"></div>
+
+                  <!-- Barra de progresso -->
+                  <div id="upload-progress" style="display:none;margin-top:.75rem">
+                    <div style="background:var(--cinza-borda);border-radius:50px;height:6px;overflow:hidden">
+                      <div id="upload-bar" style="height:100%;background:var(--azul);
+                        border-radius:50px;width:0%;transition:width .3s"></div>
+                    </div>
+                    <p id="upload-status" style="font-size:.78rem;color:var(--azul);margin-top:.4rem"></p>
+                  </div>
+
+                  <span class="form-hint">As evidências ficam armazenadas com segurança e acessíveis apenas pela equipe pedagógica</span>
+                </div>
+              </div>
+
+              <hr class="form-divider" />
+
+              <div class="form-submit-row">
+                <button type="submit" class="btn-primary">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:17px;height:17px"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                  Enviar Denúncia
+                </button>
+                <span class="form-disclaimer">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  Seus dados são protegidos e tratados com sigilo total
+                </span>
+              </div>
+            </form>
+          </div>
+
+          <!-- Info box -->
+          <div class="reveal" style="margin-top:2rem;background:rgba(0,61,165,.05);border:1px solid rgba(0,61,165,.15);border-radius:var(--radius);padding:1.5rem;display:flex;gap:1rem;align-items:flex-start;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;color:var(--azul);flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div>
+              <strong style="font-size:.9rem;color:var(--texto);display:block;margin-bottom:.3rem;font-family:Montserrat,sans-serif;">O que acontece após o envio?</strong>
+              <p style="font-size:.85rem;margin:0;">A denúncia é registrada no sistema e um alerta automático é enviado à equipe pedagógica responsável. Um profissional analisará o caso e tomará as providências necessárias. Em situações de risco imediato, o processo é acelerado.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </div>
+
+
+  <!-- ════════════════════════════════════════
+       PAGE: QUIZ
+  ════════════════════════════════════════ -->
+  <div id="page-quiz" class="page">
+    <div class="page-hero">
+      <div class="section-label" style="margin:0 auto 1rem;background:rgba(244,121,32,.18);border-color:rgba(244,121,32,.35);color:var(--laranja-claro)">Educação Interativa</div>
+      <h1>Quiz sobre <span style="color:var(--laranja-claro)">Bullying</span></h1>
+      <p>Teste seus conhecimentos e aprenda a identificar, prevenir e combater o bullying.</p>
+    </div>
+    <section class="quiz-section">
+      <div class="section-wrap">
+        <div class="quiz-wrap">
+          <div class="quiz-card" id="quiz-container">
+            <div class="quiz-progress"><div class="quiz-bar" id="quiz-bar" style="width:0%"></div></div>
+            <div class="quiz-counter" id="quiz-counter">Pergunta 1 de 10</div>
+            <div class="quiz-question" id="quiz-question"></div>
+            <div class="quiz-options" id="quiz-options"></div>
+            <div class="quiz-feedback" id="quiz-feedback"></div>
+            <div class="quiz-nav">
+              <button class="btn-azul" id="btn-next" style="display:none" onclick="quizNext()">Próxima →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+
+  <!-- ════════════════════════════════════════
+       PAGE: MEU PROTOCOLO
+  ════════════════════════════════════════ -->
+  <div id="page-protocolo" class="page">
+    <div class="page-hero">
+      <div class="section-label" style="margin:0 auto 1rem;background:rgba(244,121,32,.18);border-color:rgba(244,121,32,.35);color:var(--laranja-claro)">Acompanhamento</div>
+      <h1>Meu <span style="color:var(--laranja-claro)">Protocolo</span></h1>
+      <p>Digite o código que você recebeu por e-mail para acompanhar o status da sua denúncia.</p>
+    </div>
+    <section style="padding:5rem 0">
+      <div class="section-wrap">
+        <div style="max-width:640px;margin:0 auto">
+
+          <!-- Caixa de busca -->
+          <div class="form-card reveal" style="text-align:center;margin-bottom:1.5rem">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:52px;height:52px;color:var(--azul);margin:0 auto 1.25rem"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <h2 style="font-size:1.35rem;margin-bottom:.4rem;color:var(--texto)">Buscar Denúncia</h2>
+            <p style="margin-bottom:1.5rem">Cole o código do protocolo recebido por e-mail após o envio da denúncia.</p>
+            <div style="display:flex;gap:.75rem;max-width:420px;margin:0 auto">
+              <input class="form-input" type="text" id="protocolo-input"
+                placeholder="Ex: M5X3K9A8"
+                style="flex:1;text-transform:uppercase;letter-spacing:.06em;font-weight:600"
+                oninput="this.value=this.value.toUpperCase()"
+                onkeydown="if(event.key==='Enter')buscarProtocolo()"/>
+              <button class="btn-azul" onclick="buscarProtocolo()" style="padding:.7rem 1.25rem;white-space:nowrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Buscar
+              </button>
+            </div>
+          </div>
+
+          <!-- Loading -->
+          <div id="proto-loading" style="display:none;text-align:center;padding:2rem">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:36px;height:36px;color:var(--azul);animation:spin 1s linear infinite;margin:0 auto .75rem"><circle cx="12" cy="12" r="10" stroke-opacity=".3"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+            <p>Buscando denúncia...</p>
+          </div>
+
+          <!-- Resultado -->
+          <div id="proto-result" style="display:none">
+            <div class="form-card" style="border-top:4px solid var(--azul)">
+              <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.5rem">
+                <div>
+                  <div style="font-size:.72rem;font-weight:700;color:var(--cinza-medio);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.25rem">Protocolo</div>
+                  <div style="font-family:'Montserrat',sans-serif;font-size:1.5rem;font-weight:900;color:var(--azul)" id="proto-id"></div>
+                </div>
+                <div id="proto-status-badge"></div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+                <div>
+                  <div style="font-size:.72rem;font-weight:700;color:var(--azul);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.25rem;font-family:'Montserrat',sans-serif">Tipo de Bullying</div>
+                  <p style="font-size:.9rem;font-weight:500;color:var(--texto)" id="proto-tipo"></p>
+                </div>
+                <div>
+                  <div style="font-size:.72rem;font-weight:700;color:var(--azul);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.25rem;font-family:'Montserrat',sans-serif">Local</div>
+                  <p style="font-size:.9rem;font-weight:500;color:var(--texto)" id="proto-local"></p>
+                </div>
+                <div>
+                  <div style="font-size:.72rem;font-weight:700;color:var(--azul);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.25rem;font-family:'Montserrat',sans-serif">Data da Ocorrência</div>
+                  <p style="font-size:.9rem;font-weight:500;color:var(--texto)" id="proto-data"></p>
+                </div>
+                <div>
+                  <div style="font-size:.72rem;font-weight:700;color:var(--azul);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.25rem;font-family:'Montserrat',sans-serif">Registrada em</div>
+                  <p style="font-size:.9rem;font-weight:500;color:var(--texto)" id="proto-ts"></p>
+                </div>
+              </div>
+
+              <hr style="border:none;border-top:1px solid var(--cinza-borda);margin:1.25rem 0"/>
+
+              <div style="font-size:.72rem;font-weight:700;color:var(--azul);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.75rem;font-family:'Montserrat',sans-serif">Histórico de Atualizações</div>
+              <div id="proto-historico"></div>
+            </div>
+          </div>
+
+          <!-- Não encontrado -->
+          <div id="proto-nao-found" style="display:none">
+            <div style="background:rgba(220,38,38,.05);border:1px solid rgba(220,38,38,.18);border-radius:var(--radius-lg);padding:2.5rem;text-align:center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:48px;height:48px;color:var(--alerta);margin:0 auto 1rem"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <h3 style="color:var(--alerta);margin-bottom:.5rem">Protocolo não encontrado</h3>
+              <p>Verifique o código e tente novamente. Certifique-se de usar o código exato recebido por e-mail após o envio da denúncia.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PAGE: PAINEL PEDAGÓGICO
+  ════════════════════════════════════════ -->
+  <div id="page-painel" class="page">
+
+    <!-- TELA DE LOGIN -->
+    <div class="login-screen" id="login-screen">
+      <div class="login-card">
+        <div class="login-logo">
+          <img src="data:image/png;base64,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" alt="SENAI" style="height:44px;width:auto;margin:0 auto;" />
+        </div>
+        <div class="login-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Acesso Restrito
+        </div>
+        <h2>Painel Pedagógico</h2>
+        <p>Área exclusiva para a equipe pedagógica do SENAI Minas Gerais.</p>
+        <div class="login-error" id="login-error">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Senha incorreta. Tente novamente.
+        </div>
+        <div class="login-input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          <input class="login-input" type="password" id="login-senha" placeholder="Digite a senha de acesso" onkeydown="if(event.key==='Enter') tentarLogin()" />
+        </div>
+        <button class="btn-login" onclick="tentarLogin()">
+          Entrar no Painel
+        </button>
+      </div>
+    </div>
+
+    <!-- PAINEL PRINCIPAL -->
+    <div class="painel-wrap" id="painel-principal">
+
+      <!-- Header do painel -->
+      <div class="painel-header">
+        <div class="painel-header-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <div>
+            <h2>Painel de Denúncias</h2>
+            <span>SENAI Minas Gerais — Equipe Pedagógica</span>
+          </div>
+        </div>
+        <div class="painel-header-right">
+          <div class="painel-stats-bar" id="painel-stats-bar"></div>
+          <button class="btn-sair" onclick="sairPainel()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+            Sair
+          </button>
+        </div>
+      </div>
+
+      <!-- Dashboard com gráficos -->
+      <div class="dashboard" id="dash-section">
+        <div class="dash-grid" id="dash-cards"></div>
+        <div class="charts-grid">
+          <div class="chart-box"><div class="chart-title">Tipos de Bullying</div><canvas id="chart-tipos" height="200"></canvas></div>
+          <div class="chart-box"><div class="chart-title">Locais de Ocorrência</div><canvas id="chart-locais" height="200"></canvas></div>
+          <div class="chart-box"><div class="chart-title">Status das Denúncias</div><canvas id="chart-status" height="200"></canvas></div>
+
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="painel-filters">
+        <span class="filter-label">Filtrar por:</span>
+        <input type="text" class="filter-select" id="filter-busca" placeholder="Nome, RA ou protocolo..." oninput="renderTabela()" style="cursor:text;min-width:180px"/>
+        <select class="filter-select" id="filter-status" onchange="renderTabela()">
+          <option value="">Todos os status</option>
+          <option value="pendente">Pendente</option>
+          <option value="em_analise">Em análise</option>
+          <option value="resolvido">Resolvido</option>
+        </select>
+        <select class="filter-select" id="filter-anon" onchange="renderTabela()">
+          <option value="">Anônimo / Identificado</option>
+          <option value="true">Anônimo</option>
+          <option value="false">Identificado</option>
+        </select>
+        <button onclick="exportarCSV()" style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,61,165,.08);border:1px solid rgba(0,61,165,.2);color:var(--azul);border-radius:8px;padding:.4rem .85rem;font-size:.8rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>CSV
+        </button>
+        <button class="btn-clear-all" onclick="limparDados()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          Limpar tudo
+        </button>
+        <span class="filter-count" id="filter-count"></span>
+      </div>
+
+      <!-- Tabela -->
+      <div class="painel-table-wrap">
+        <div id="painel-table-container"></div>
+      </div>
+    </div>
+
+    <!-- Modal detalhes -->
+    <div class="modal-overlay" id="modal-overlay" onclick="fecharModal(event)">
+      <div class="modal-box" id="modal-box">
+        <div class="modal-head">
+          <div>
+            <h3 id="modal-title">Detalhes da Denúncia</h3>
+            <span id="modal-subtitle"></span>
+          </div>
+          <button class="modal-close" onclick="fecharModalBtn()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+        <div class="modal-footer">
+          <select class="modal-status-select" id="modal-status-select">
+            <option value="pendente">Pendente</option>
+            <option value="em_analise">Em análise</option>
+            <option value="resolvido">Resolvido</option>
+          </select>
+          <button class="btn-save-status" onclick="salvarStatus()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Salvar Status
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════ -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-brand-logo">
+            <img src="data:image/png;base64,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" alt="SENAI Minas Gerais" style="height:32px;width:auto;display:block;filter:brightness(0) invert(1);" />
+            <span class="brand-text">Combate ao Bullying</span>
+          </div>
+          <p>Plataforma institucional do SENAI Minas Gerais dedicada à prevenção e combate ao bullying escolar. Juntos por um ambiente mais seguro, respeitoso e acolhedor.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Navegação</h4>
+          <ul>
+            <li><a onclick="showPage('home')">Home</a></li>
+            <li><a onclick="showPage('info')">Informações</a></li>
+            <li><a onclick="showPage('ajuda')">Ajuda</a></li>
+            <li><a onclick="showPage('denuncia')">Denunciar</a></li>
+            <li><a onclick="showPage('protocolo')">Meu Protocolo</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Legislação</h4>
+          <ul>
+            <li><a>Lei nº 13.185/2015</a></li>
+            <li><a>Lei nº 13.663/2018</a></li>
+            <li><a>ECA – Lei nº 8.069/90</a></li>
+            <li><a>LGPD – Lei nº 13.709/18</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Emergências</h4>
+          <ul>
+            <li><a>Disque 100 — Direitos Humanos</a></li>
+            <li><a>CVV — 188</a></li>
+            <li><a>SAMU — 192</a></li>
+            <li><a>Polícia Militar — 190</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 SENAI Minas Gerais. Todos os direitos reservados.</p>
+        <span class="snai-badge">SENAI · FIEMG · CNI</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <span>Denúncia enviada com sucesso! A equipe pedagógica foi notificada.</span>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SCRIPTS
+  ════════════════════════════════════════ -->
+  <script>
+    // ══════════════════════════════════════════
+    // CONFIG
+    // ══════════════════════════════════════════
+    const SENHA_PAINEL  = 'Senai@2026!';
+
+    // JSONBin — banco de dados na nuvem
+    const JSONBIN_BIN_ID  = '69d6e09daaba882197da77bb';
+    const JSONBIN_API_KEY = '$2a$10$K3umiXjDxJc.7/pRoimZPeKd4AsHd5NOCLIAzfIPBAepaQVGglrF2';
+    const JSONBIN_URL     = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+
+    // EmailJS
+    const EMAILJS_SERVICE_ID           = 'service_86eftrh';
+    const EMAILJS_TEMPLATE_ID          = 'template_shiwghn'; // pedagógico
+    const EMAILJS_TEMPLATE_CONFIRMACAO = 'template_izis2qp'; // confirmação aluno
+    const EMAILJS_PUBLIC_KEY           = 'NdAzWofZxLC1wOsfK';
+
+    // E-mail fixo da equipe pedagógica
+    const EMAIL_PEDAGOGICO = 'lh221534@gmail.com';
+
+    // ══════════════════════════════════════════
+    // EMAILJS INIT
+    // ══════════════════════════════════════════
+    (function() {
+      try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) {}
+    })();
+
+    // ══════════════════════════════════════════
+    // JSONBIN — leitura e escrita
+    // ══════════════════════════════════════════
+    async function dbGetReports() {
+      try {
+        const res = await fetch(JSONBIN_URL + '/latest', {
+          headers: { 'X-Master-Key': JSONBIN_API_KEY }
+        });
+        const json = await res.json();
+        const data = json.record;
+        // Filtra o objeto de inicialização e retorna só denúncias reais
+        if (Array.isArray(data)) {
+          return data.filter(r => r && !r.init);
+        }
+        return [];
+      } catch(e) {
+        console.error('Erro ao carregar denúncias:', e);
+        return [];
+      }
+    }
+
+    async function dbSaveReports(arr) {
+      try {
+        await fetch(JSONBIN_URL, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': JSONBIN_API_KEY
+          },
+          body: JSON.stringify(arr)
+        });
+      } catch(e) {
+        console.error('Erro ao salvar denúncias:', e);
+      }
+    }
+
+    async function dbAddReport(report) {
+      const reports = await dbGetReports();
+      reports.push(report);
+      await dbSaveReports(reports);
+      return reports;
+    }
+
+
+    // ══════════════════════════════════════════
+    // DARK MODE
+    // ══════════════════════════════════════════
+    function toggleDark() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      html.setAttribute('data-theme', isDark ? '' : 'dark');
+      localStorage.setItem('senai-theme', isDark ? 'light' : 'dark');
+    }
+    (function() {
+      if (localStorage.getItem('senai-theme') === 'dark')
+        document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+
+    // ══════════════════════════════════════════
+    // QUIZ
+    // ══════════════════════════════════════════
+    const QUIZ_PERGUNTAS = [
+      { q: 'O que caracteriza o bullying em relação a uma briga comum?',
+        opts: ['Acontece uma única vez','É intencional, repetido e há desequilíbrio de poder','Sempre envolve agressão física','Ocorre apenas entre adultos'],
+        c: 1, exp: 'O bullying tem três marcas: intencionalidade, repetição e desequilíbrio de poder entre agressor e vítima.' },
+      { q: 'O cyberbullying pode acontecer:',
+        opts: ['Apenas em computadores pessoais','Somente durante o horário escolar','Em qualquer dispositivo conectado, a qualquer hora','Apenas em redes sociais públicas'],
+        c: 2, exp: 'O cyberbullying ocorre em qualquer meio digital — celular, computador, tablet — 24h por dia, 7 dias por semana.' },
+      { q: 'Se você presenciar bullying, a atitude correta é:',
+        opts: ['Ignorar para não se envolver','Rir junto para não ser a próxima vítima','Filmar e publicar nas redes sociais','Apoiar a vítima e comunicar um adulto de confiança'],
+        c: 3, exp: 'Testemunhas têm papel fundamental. Apoiar a vítima e comunicar um responsável pode interromper o ciclo do bullying.' },
+      { q: 'A Lei nº 13.185/2015 institui o:',
+        opts: ['Estatuto da Criança e do Adolescente','Programa de Combate à Intimidação Sistemática','Código de Defesa do Consumidor','Programa Nacional de Segurança Escolar'],
+        c: 1, exp: 'A Lei nº 13.185/2015 criou o Programa de Combate à Intimidação Sistemática (bullying) em todo o território nacional.' },
+      { q: 'Qual NÃO é um tipo de bullying reconhecido?',
+        opts: ['Verbal','Físico','Acadêmico','Cyberbullying'],
+        c: 2, exp: 'Os tipos reconhecidos são: verbal, físico, psicológico e cyberbullying. "Acadêmico" não é uma categoria oficial.' },
+      { q: 'O bullying psicológico inclui:',
+        opts: ['Apenas agressões físicas','Somente xingamentos em voz alta','Exclusão social, boatos e manipulação','Apenas mensagens online'],
+        c: 2, exp: 'O bullying psicológico envolve exclusão social, isolamento, espalhamento de boatos, chantagem emocional e manipulação.' },
+      { q: 'Consequências do bullying para a vítima podem incluir:',
+        opts: ['Apenas arranhões físicos','Nenhuma consequência a longo prazo','Ansiedade, depressão e fobia escolar','Apenas vergonha temporária'],
+        c: 2, exp: 'As consequências podem ser sérias: ansiedade, depressão, trauma, queda no rendimento e até pensamentos de autoagressão.' },
+      { q: 'O canal de denúncia do SENAI MG permite:',
+        opts: ['Somente denúncias por telefone','Apenas presencialmente','Denúncias online com opção de anonimato','Somente denúncias identificadas'],
+        c: 2, exp: 'Esta plataforma permite denúncias online com total sigilo, inclusive de forma completamente anônima.' },
+      { q: 'A denúncia anônima no sistema do SENAI:',
+        opts: ['Não é levada a sério','Tem a mesma prioridade que as identificadas','Só funciona para cyberbullying','Não é possível'],
+        c: 1, exp: 'Todas as denúncias, anônimas ou identificadas, recebem a mesma atenção e são encaminhadas à equipe pedagógica.' },
+      { q: 'O Disque 100 é:',
+        opts: ['Pago, exclusivo para adultos','Gratuito, para denúncias de violações a direitos humanos','Disponível só em dias úteis','Exclusivo para emergências médicas'],
+        c: 1, exp: 'O Disque 100 é gratuito, disponível 24h/7 dias, para denúncias de violações a direitos humanos, inclusive violência contra crianças.' },
+    ];
+
+    let qAtual = 0, qPontos = 0, qRespondida = false;
+
+    function quizRender() {
+      if (qAtual >= QUIZ_PERGUNTAS.length) { quizResultado(); return; }
+      const p = QUIZ_PERGUNTAS[qAtual];
+      const bar = document.getElementById('quiz-bar');
+      if (bar) bar.style.width = ((qAtual / QUIZ_PERGUNTAS.length) * 100) + '%';
+      document.getElementById('quiz-counter').textContent = `Pergunta ${qAtual + 1} de ${QUIZ_PERGUNTAS.length}`;
+      document.getElementById('quiz-question').textContent = p.q;
+      document.getElementById('quiz-options').innerHTML = p.opts.map((o, i) =>
+        `<button class="quiz-option" onclick="quizResponder(${i})">${o}</button>`
+      ).join('');
+      document.getElementById('quiz-feedback').className = 'quiz-feedback';
+      document.getElementById('quiz-feedback').textContent = '';
+      document.getElementById('btn-next').style.display = 'none';
+      qRespondida = false;
+    }
+
+    function quizResponder(idx) {
+      if (qRespondida) return;
+      qRespondida = true;
+      const p = QUIZ_PERGUNTAS[qAtual];
+      document.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+      const btns = document.querySelectorAll('.quiz-option');
+      if (idx === p.c) { btns[idx].classList.add('correto'); qPontos++; }
+      else { btns[idx].classList.add('errado'); btns[p.c].classList.add('correto'); }
+      const fb = document.getElementById('quiz-feedback');
+      fb.textContent = p.exp;
+      fb.className = 'quiz-feedback show ' + (idx === p.c ? 'ok' : 'nao');
+      document.getElementById('btn-next').style.display = 'flex';
+    }
+
+    function quizNext() { qAtual++; quizRender(); }
+
+    function quizResultado() {
+      const pct = Math.round((qPontos / QUIZ_PERGUNTAS.length) * 100);
+      const medal = pct >= 90 ? '🏆' : pct >= 70 ? '🥈' : pct >= 50 ? '🥉' : '📚';
+      const msg = pct >= 90 ? 'Excelente! Você é um especialista no combate ao bullying!'
+        : pct >= 70 ? 'Muito bem! Você tem um ótimo conhecimento sobre o tema.'
+        : pct >= 50 ? 'Bom esforço! Continue aprendendo sobre esse tema importante.'
+        : 'Continue estudando! O conhecimento é a melhor ferramenta contra o bullying.';
+      document.getElementById('quiz-container').innerHTML = `
+        <div class="quiz-result">
+          <span class="quiz-medal">${medal}</span>
+          <div class="quiz-question" style="margin-bottom:.5rem">Resultado Final</div>
+          <div class="quiz-score">${qPontos}<span>/${QUIZ_PERGUNTAS.length}</span></div>
+          <p style="font-size:1.05rem;font-weight:600;color:var(--texto);margin:1rem 0 .5rem">${pct}% de acertos</p>
+          <p style="margin-bottom:2rem;max-width:440px;margin-left:auto;margin-right:auto">${msg}</p>
+          <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+            <button class="btn-primary" onclick="quizReiniciar()">Refazer Quiz</button>
+            <button class="btn-azul" onclick="showPage('info')">Saiba Mais</button>
+            <button class="btn-primary" onclick="showPage('denuncia')" style="background:var(--laranja)">Fazer Denúncia</button>
+          </div>
+        </div>`;
+    }
+
+    function quizReiniciar() {
+      qAtual = 0; qPontos = 0; qRespondida = false;
+      document.getElementById('quiz-container').innerHTML = `
+        <div class="quiz-progress"><div class="quiz-bar" id="quiz-bar" style="width:0%"></div></div>
+        <div class="quiz-counter" id="quiz-counter">Pergunta 1 de 10</div>
+        <div class="quiz-question" id="quiz-question"></div>
+        <div class="quiz-options" id="quiz-options"></div>
+        <div class="quiz-feedback" id="quiz-feedback"></div>
+        <div class="quiz-nav"><button class="btn-azul" id="btn-next" style="display:none" onclick="quizNext()">Próxima →</button></div>`;
+      quizRender();
+    }
+
+    // ══════════════════════════════════════════
+    // DASHBOARD (Gráficos do Painel)
+    // ══════════════════════════════════════════
+    let _charts = {};
+
+    function renderDashboard(reports) {
+      const total     = reports.length;
+      const pendentes = reports.filter(r => r.status === 'pendente').length;
+      const resolvidos= reports.filter(r => r.status === 'resolvido').length;
+
+      const cards = document.getElementById('dash-cards');
+      if (!cards) return;
+      const emAnalise = reports.filter(r => r.status === 'em_analise').length;
+      cards.innerHTML =
+        `<div class="dash-card"><div class="dash-label">Total</div><div class="dash-value azul">${total}</div></div>` +
+        `<div class="dash-card"><div class="dash-label">Pendentes</div><div class="dash-value laranja">${pendentes}</div></div>` +
+        `<div class="dash-card"><div class="dash-label">Em Análise</div><div class="dash-value azul">${emAnalise}</div></div>` +
+        `<div class="dash-card"><div class="dash-label">Resolvidas</div><div class="dash-value verde">${resolvidos}</div></div>`;
+
+      const tipoMap = {verbal:'Verbal',fisico:'Físico',psicologico:'Psicológico',cyberbullying:'Cyberbullying',misto:'Misto'};
+      const tipos = {}; reports.forEach(r => { const t = tipoMap[r.tipo_bullying]||r.tipo_bullying||'N/I'; tipos[t]=(tipos[t]||0)+1; });
+      const locais= {}; reports.forEach(r => { const l = r.local||'N/I'; locais[l]=(locais[l]||0)+1; });
+      const st    = {Pendente:0,'Em Análise':0,Resolvido:0};
+      reports.forEach(r => { if(r.status==='pendente')st['Pendente']++;else if(r.status==='em_analise')st['Em Análise']++;else if(r.status==='resolvido')st['Resolvido']++; });
+
+      criarGrafico('chart-tipos',   'doughnut', Object.keys(tipos),  Object.values(tipos),  ['#003DA5','#F47920','#553C9A','#2B6CB0','#16A34A']);
+      criarGrafico('chart-locais',  'bar',      Object.keys(locais), Object.values(locais), ['#003DA5']);
+      criarGrafico('chart-status',  'doughnut', Object.keys(st),     Object.values(st),     ['#F59E0B','#3B82F6','#16A34A']);
+    }
+
+    function criarGrafico(id, tipo, labels, data, colors) {
+      if (_charts[id]) _charts[id].destroy();
+      const el = document.getElementById(id);
+      if (!el) return;
+      _charts[id] = new Chart(el.getContext('2d'), {
+        type: tipo,
+        data: { labels, datasets: [{ data, backgroundColor: tipo==='bar'?colors[0]:colors, borderWidth: tipo==='bar'?0:2, borderColor:'#fff' }] },
+        options: { responsive:true, plugins:{ legend:{ position:tipo==='bar'?'top':'bottom', labels:{ font:{size:11}, boxWidth:12 } } }, scales: tipo==='bar'?{y:{beginAtZero:true,ticks:{stepSize:1}}}:{} }
+      });
+    }
+
+
+    // ══════════════════════════════════════════
+    // RASTREAMENTO DE PROTOCOLO
+    // ══════════════════════════════════════════
+    async function buscarProtocolo() {
+      const id = (document.getElementById('protocolo-input').value || '').trim().toUpperCase();
+      if (!id) { showToast('Digite o código do protocolo.', 'erro'); return; }
+
+      document.getElementById('proto-result').style.display    = 'none';
+      document.getElementById('proto-nao-found').style.display = 'none';
+      document.getElementById('proto-loading').style.display   = 'block';
+
+      const all = await dbGetReports();
+      document.getElementById('proto-loading').style.display   = 'none';
+
+      const r = all.find(x => x.id === id && x.tipo !== 'depoimento');
+
+      if (!r) {
+        document.getElementById('proto-nao-found').style.display = 'block';
+        return;
+      }
+
+      const stLabel = { pendente:'Pendente', em_analise:'Em Análise', resolvido:'Resolvido' };
+      const tipoLabel = { verbal:'Verbal', fisico:'Físico', psicologico:'Psicológico', cyberbullying:'Cyberbullying', misto:'Misto' };
+      const stClass = r.status || 'pendente';
+
+      document.getElementById('proto-id').textContent = '#' + r.id;
+      document.getElementById('proto-status-badge').innerHTML =
+        `<span class="status-badge ${stClass}"><div class="dot"></div>${stLabel[r.status] || 'Pendente'}</span>`;
+      document.getElementById('proto-tipo').textContent   = tipoLabel[r.tipo_bullying] || r.tipo_bullying || '—';
+      document.getElementById('proto-local').textContent  = r.local || '—';
+      document.getElementById('proto-data').textContent   = r.data_ocorrencia
+        ? new Date(r.data_ocorrencia + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
+      document.getElementById('proto-ts').textContent     = r.timestamp
+        ? new Date(r.timestamp).toLocaleString('pt-BR') : '—';
+
+      const hist = r.historico || [];
+      const histEl = document.getElementById('proto-historico');
+      if (hist.length > 0) {
+        histEl.innerHTML = hist.map(h =>
+          `<div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;background:var(--cinza-claro);border-radius:10px;padding:.7rem 1rem;margin-bottom:.5rem;flex-wrap:wrap">
+            <span class="status-badge ${h.status}"><div class="dot"></div>${stLabel[h.status] || h.status}</span>
+            ${h.observacao ? `<span style="font-size:.82rem;color:var(--texto-leve);flex:1">${h.observacao}</span>` : ''}
+            <span style="font-size:.72rem;color:var(--cinza-medio)">${new Date(h.timestamp).toLocaleString('pt-BR')}</span>
+          </div>`
+        ).join('');
+      } else {
+        histEl.innerHTML = '<p style="font-size:.85rem;color:var(--cinza-medio)">Nenhuma atualização ainda — sua denúncia está sendo analisada pela equipe pedagógica.</p>';
+      }
+
+      document.getElementById('proto-result').style.display = 'block';
+    }
+
+    // ══════════════════════════════════════════
+    // NAVEGAÇÃO
+    // ══════════════════════════════════════════
+    let currentPage = 'home';
+
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + pageId).classList.add('active');
+      currentPage = pageId;
+      updateNavActive(pageId);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(observeReveal, 120);
+      if (pageId === 'quiz') { qAtual=0; qPontos=0; qRespondida=false; setTimeout(quizRender,150); }
+      if (pageId === 'protocolo') { document.getElementById('proto-result').style.display='none'; document.getElementById('proto-nao-found').style.display='none'; document.getElementById('proto-loading').style.display='none'; }
+      if (pageId === 'painel') {
+        if (painelAutenticado) {
+          document.getElementById('login-screen').style.display = 'none';
+          document.getElementById('painel-principal').classList.add('visible');
+          carregarPainel();
+        } else {
+          document.getElementById('login-screen').style.display = '';
+          document.getElementById('painel-principal').classList.remove('visible');
+          setTimeout(() => document.getElementById('login-senha').focus(), 200);
+        }
+      }
+    }
+
+    function updateNavActive(pageId) {
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('nav-active');
+        if (link.dataset.page === pageId) link.classList.add('nav-active');
+      });
+    }
+
+    // ══════════════════════════════════════════
+    // HAMBURGER
+    // ══════════════════════════════════════════
+    let mobileOpen = false;
+    function toggleMobile() {
+      mobileOpen = !mobileOpen;
+      document.getElementById('nav-mobile').classList.toggle('open', mobileOpen);
+      document.getElementById('hamburger').classList.toggle('open', mobileOpen);
+    }
+
+    // ══════════════════════════════════════════
+    // TOGGLE ANÔNIMO
+    // ══════════════════════════════════════════
+    let isAnon = false;
+    function toggleAnon() {
+      isAnon = !isAnon;
+      const check  = document.getElementById('anon-check');
+      const toggle = document.getElementById('anon-toggle');
+      const fields = document.getElementById('identif-fields');
+      check.checked = isAnon;
+      toggle.classList.toggle('active', isAnon);
+      if (isAnon) {
+        fields.classList.remove('visible');
+        fields.classList.add('hidden');
+      } else {
+        fields.classList.remove('hidden');
+        fields.classList.add('visible');
+      }
+    }
+
+    // ══════════════════════════════════════════
+    // SUBMIT FORMULÁRIO
+    // ══════════════════════════════════════════
+    async function submitForm(e) {
+      e.preventDefault();
+
+      // Validação campos identificados
+      if (!isAnon) {
+        const ra    = document.getElementById('ra').value.trim();
+        const turma = document.getElementById('turma').value;
+        const email = document.getElementById('email-denunciante').value.trim();
+
+        if (!ra) {
+          destacarErro('ra'); return;
+        }
+        if (!turma) {
+          destacarErro('turma'); return;
+        }
+        if (!email || !email.includes('@')) {
+          destacarErro('email-denunciante'); return;
+        }
+      }
+
+      // Desabilitar botão durante envio
+      const btnSubmit = e.target.querySelector('button[type="submit"]');
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          style="width:17px;height:17px;animation:spin 1s linear infinite">
+          <circle cx="12" cy="12" r="10" stroke-opacity=".3"/>
+          <path d="M12 2a10 10 0 0 1 10 10"/>
+        </svg>
+        Enviando...`;
+
+      const emailDenunciante = isAnon ? null : document.getElementById('email-denunciante').value.trim();
+
+      const report = {
+        id:              Date.now().toString(36).toUpperCase(),
+        nome:            isAnon ? null : document.getElementById('nome').value.trim() || null,
+        ra:              isAnon ? null : document.getElementById('ra').value.trim(),
+        turma:           isAnon ? null : document.getElementById('turma').value,
+        email:           emailDenunciante,
+        anonimo:         isAnon,
+        local:           document.getElementById('local').value,
+        data_ocorrencia: document.getElementById('data').value,
+        envolvido:       document.getElementById('envolvidos').value.trim() || null,
+        descricao:       document.getElementById('descricao').value.trim(),
+        arquivos:        arquivosUpload.length > 0 ? arquivosUpload : null,
+        status:          'pendente',
+        timestamp:       new Date().toISOString(),
+      };
+
+      try {
+        // 1. Salvar no JSONBin
+        await dbAddReport(report);
+
+        // 2. E-mail para a equipe pedagógica
+        enviarEmailPedagogico(report);
+
+        // 3. E-mail de confirmação para o denunciante (se não anônimo)
+        if (!isAnon && emailDenunciante) {
+          enviarEmailConfirmacao(report, emailDenunciante);
+        }
+
+        // Reset form
+        e.target.reset();
+        isAnon = false;
+        document.getElementById('anon-check').checked = false;
+        document.getElementById('anon-toggle').classList.remove('active');
+        document.getElementById('identif-fields').classList.remove('hidden');
+        document.getElementById('identif-fields').classList.add('visible');
+        document.getElementById('turma').value = '';
+        arquivosUpload = [];
+        document.getElementById('upload-preview').style.display = 'none';
+        document.getElementById('upload-preview').innerHTML = '';
+        document.getElementById('arquivo-input').value = '';
+
+        showToast(`Denúncia enviada! Protocolo: #${report.id}`);
+        setTimeout(() => { document.getElementById('protocolo-input').value = report.id; showPage('protocolo'); buscarProtocolo(); }, 3500);
+      } catch(err) {
+        console.error('Erro ao enviar:', err);
+        alert('Ocorreu um erro ao enviar a denúncia. Tente novamente.');
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:17px;height:17px">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+          Enviar Denúncia`;
+      }
+    }
+
+    function destacarErro(id) {
+      const el = document.getElementById(id);
+      el.focus();
+      el.style.borderColor = 'var(--alerta)';
+      el.style.boxShadow   = '0 0 0 3px rgba(220,38,38,.15)';
+      setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 3000);
+    }
+
+    // ══════════════════════════════════════════
+    // EMAILJS — envio de e-mails
+    // ══════════════════════════════════════════
+    function fmtData(iso) {
+      if (!iso) return '—';
+      return new Date(iso + 'T00:00:00').toLocaleDateString('pt-BR');
+    }
+
+    // E-mail para a equipe pedagógica
+    function enviarEmailPedagogico(report) {
+      const params = {
+        to_email:        EMAIL_PEDAGOGICO,
+        to_name:         'Equipe Pedagógica SENAI',
+        tipo_email:      'ALERTA — Nova Denúncia Recebida',
+        report_id:       report.id,
+        anonimo:         report.anonimo ? 'Sim (anônima)' : 'Não',
+        nome:            report.nome    || '—',
+        ra:              report.ra      || '—',
+        turma:           report.turma   || '—',
+        email_aluno:     report.email   || '—',
+        local:           report.local   || '—',
+        data_ocorrencia: fmtData(report.data_ocorrencia),
+        envolvido:       report.envolvido || '—',
+        descricao:       report.descricao || '—',
+        status:          'Pendente',
+        timestamp:       new Date(report.timestamp).toLocaleString('pt-BR'),
+        reply_to:        report.email   || EMAIL_PEDAGOGICO,
+      };
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
+        .then(() => console.log('Alerta enviado à equipe pedagógica'))
+        .catch(err => console.error('EmailJS erro:', JSON.stringify(err)));
+    }
+
+    function enviarEmailConfirmacao(report, emailDestino) {
+      const params = {
+        email_aluno:     emailDestino,
+        nome:            report.nome    || 'Aluno',
+        report_id:       report.id,
+        turma:           report.turma   || '—',
+        ra:              report.ra      || '—',
+        local:           report.local   || '—',
+        data_ocorrencia: fmtData(report.data_ocorrencia),
+        descricao:       report.descricao || '—',
+        status:          'Pendente',
+        timestamp:       new Date(report.timestamp).toLocaleString('pt-BR'),
+      };
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONFIRMACAO, params)
+        .then(() => console.log('Confirmação enviada para', emailDestino))
+        .catch(err => console.error('EmailJS (confirmação) erro:', JSON.stringify(err)));
+    }
+
+    // ══════════════════════════════════════════
+    // TOAST
+    // ══════════════════════════════════════════
+    function showToast() {
+      const toast = document.getElementById('toast');
+      toast.style.display = 'flex';
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => { toast.style.display = 'none'; }, 300);
+      }, 5000);
+    }
+
+    // ══════════════════════════════════════════
+    // SCROLL REVEAL
+    // ══════════════════════════════════════════
+    function observeReveal() {
+      const items = document.querySelectorAll('#page-' + currentPage + ' .reveal:not(.visible)');
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      items.forEach(el => obs.observe(el));
+    }
+
+    // ══════════════════════════════════════════
+    // INIT
+    // ══════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', () => {
+      const today     = new Date().toISOString().split('T')[0];
+      const minDate   = '2026-01-01';
+      const dateInput = document.getElementById('data');
+      if (dateInput) {
+        dateInput.min   = minDate;
+        dateInput.max   = today >= minDate ? today : '';
+        dateInput.value = today >= minDate ? today : minDate;
+      }
+      updateNavActive('home');
+      observeReveal();
+    });
+
+    // Animação spinner no botão
+    const spinStyle = document.createElement('style');
+    spinStyle.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+    document.head.appendChild(spinStyle);
+
+    // Navbar scroll shadow
+    window.addEventListener('scroll', () => {
+      const nav = document.getElementById('navbar');
+      nav.style.boxShadow = window.scrollY > 10 ? '0 4px 24px rgba(0,0,0,.25)' : 'none';
+    });
+
+    // ══════════════════════════════════════════
+    // PAINEL — LOGIN
+    // ══════════════════════════════════════════
+    let painelAutenticado = false;
+    let modalIndex = null;
+    let _todosReports = [];
+
+    function tentarLogin() {
+      const senha = document.getElementById('login-senha').value;
+      const erro  = document.getElementById('login-error');
+      if (senha === SENHA_PAINEL) {
+        painelAutenticado = true;
+        erro.classList.remove('show');
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('painel-principal').classList.add('visible');
+        carregarPainel();
+      } else {
+        erro.classList.add('show');
+        document.getElementById('login-senha').value = '';
+        document.getElementById('login-senha').focus();
+      }
+    }
+
+    function sairPainel() {
+      painelAutenticado = false;
+      document.getElementById('login-senha').value = '';
+      document.getElementById('login-error').classList.remove('show');
+      document.getElementById('login-screen').style.display = '';
+      document.getElementById('painel-principal').classList.remove('visible');
+      showPage('home');
+    }
+
+    // ══════════════════════════════════════════
+    // PAINEL — CARREGAR / RENDER
+    // ══════════════════════════════════════════
+    async function carregarPainel() {
+      const container = document.getElementById('painel-table-container');
+      container.innerHTML = `
+        <div class="painel-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            style="animation:spin 1s linear infinite">
+            <circle cx="12" cy="12" r="10" stroke-opacity=".3"/>
+            <path d="M12 2a10 10 0 0 1 10 10"/>
+          </svg>
+          <h3>Carregando denúncias...</h3>
+          <p>Buscando dados no banco de dados.</p>
+        </div>`;
+      _todosReports = await dbGetReports();
+      renderDashboard(_todosReports);
+      renderTabela();
+    }
+
+    const statusLabel = {
+      pendente:   'Pendente',
+      em_analise: 'Em análise',
+      resolvido:  'Resolvido',
+    };
+
+    function renderStats(reports) {
+      const cnt = { pendente: 0, em_analise: 0, resolvido: 0 };
+      reports.forEach(r => { if (cnt[r.status] !== undefined) cnt[r.status]++; });
+      document.getElementById('painel-stats-bar').innerHTML = `
+        <div class="pstat pendente"><div class="dot"></div><span>${cnt.pendente}</span><em>pendentes</em></div>
+        <div class="pstat analise"><div class="dot"></div><span>${cnt.em_analise}</span><em>em análise</em></div>
+        <div class="pstat resolvido"><div class="dot"></div><span>${cnt.resolvido}</span><em>resolvidas</em></div>
+      `;
+    }
+
+    function renderTabela() {
+      const all   = _todosReports;
+      const fSt   = document.getElementById('filter-status').value;
+      const fAnon = document.getElementById('filter-anon').value;
+
+      const filtered = all.filter(r => {
+        if (fSt   && r.status !== fSt)              return false;
+        if (fAnon && String(r.anonimo) !== fAnon)   return false;
+        return true;
+      });
+
+      renderStats(all);
+      document.getElementById('filter-count').textContent =
+        `Exibindo ${filtered.length} de ${all.length} denúncia${all.length !== 1 ? 's' : ''}`;
+
+      const container = document.getElementById('painel-table-container');
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="painel-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0
+                01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <h3>Nenhuma denúncia encontrada</h3>
+            <p>Não há registros com os filtros selecionados.</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <table class="painel-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Data</th>
+              <th>Anônimo</th>
+              <th>Identificação</th>
+              <th>Local</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filtered.map((r, i) => {
+              const globalIdx = all.indexOf(r);
+              const dataFmt     = fmtData(r.data_ocorrencia);
+              const registroFmt = r.timestamp
+                ? new Date(r.timestamp).toLocaleDateString('pt-BR') : '—';
+              return `
+              <tr>
+                <td>
+                  <strong style="color:var(--azul);font-family:Montserrat,sans-serif">
+                    ${String(i+1).padStart(3,'0')}
+                  </strong>
+                  <div class="sub">${registroFmt}</div>
+                </td>
+                <td>${dataFmt}</td>
+                <td>
+                  ${r.anonimo
+                    ? `<span class="anon-badge sim">
+                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                           style="width:10px;height:10px">
+                           <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45
+                             18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11
+                             8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+                           <line x1="1" y1="1" x2="23" y2="23"/>
+                         </svg>Anônimo</span>`
+                    : `<span class="anon-badge nao">
+                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                           style="width:10px;height:10px">
+                           <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                           <circle cx="12" cy="7" r="4"/>
+                         </svg>Identificado</span>`
+                  }
+                </td>
+                <td>
+                  ${r.anonimo
+                    ? '<span style="color:var(--cinza-medio);font-size:.82rem">—</span>'
+                    : `<strong style="font-size:.88rem">${r.nome || '—'}</strong>
+                       <div class="sub">RA: ${r.ra || '—'} · ${r.turma || '—'}</div>
+                       <div class="sub" style="color:var(--azul-claro)">${r.email || ''}</div>`
+                  }
+                </td>
+                <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                  ${r.local || '—'}
+                </td>
+                <td>
+                  <span class="status-badge ${r.status || 'pendente'}">
+                    <div class="dot"></div>
+                    ${statusLabel[r.status] || 'Pendente'}
+                  </span>
+                </td>
+                <td>
+                  <button class="action-btn ver" onclick="abrirModal(${globalIdx})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    Ver
+                  </button>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    // ══════════════════════════════════════════
+    // PAINEL — MODAL
+    // ══════════════════════════════════════════
+    function abrirModal(globalIdx) {
+      modalIndex = globalIdx;
+      const r = _todosReports[globalIdx];
+      if (!r) return;
+
+      document.getElementById('modal-title').textContent = 'Detalhes da Denúncia';
+      document.getElementById('modal-subtitle').textContent =
+        `ID: ${r.id || '—'} · Registrada em ${r.timestamp
+          ? new Date(r.timestamp).toLocaleString('pt-BR') : '—'}`;
+
+      document.getElementById('modal-body').innerHTML = `
+        <div class="modal-row">
+          <div class="modal-field">
+            <label>Anônima</label>
+            <p>${r.anonimo ? 'Sim' : 'Não'}</p>
+          </div>
+          <div class="modal-field">
+            <label>Status Atual</label>
+            <p><span class="status-badge ${r.status}">
+              <div class="dot"></div>${statusLabel[r.status] || '—'}
+            </span></p>
+          </div>
+        </div>
+        ${!r.anonimo ? `
+        <div class="modal-row">
+          <div class="modal-field">
+            <label>Nome</label>
+            <p>${r.nome || '—'}</p>
+          </div>
+          <div class="modal-field">
+            <label>RA</label>
+            <p>${r.ra || '—'}</p>
+          </div>
+        </div>
+        <div class="modal-row">
+          <div class="modal-field">
+            <label>Turma</label>
+            <p>${r.turma || '—'}</p>
+          </div>
+          <div class="modal-field">
+            <label>E-mail do Aluno</label>
+            <p style="color:var(--azul-claro)">${r.email || '—'}</p>
+          </div>
+        </div>` : ''}
+        <div class="modal-row">
+          <div class="modal-field">
+            <label>Local da Ocorrência</label>
+            <p>${r.local || '—'}</p>
+          </div>
+          <div class="modal-field">
+            <label>Data da Ocorrência</label>
+            <p>${fmtData(r.data_ocorrencia)}</p>
+          </div>
+        </div>
+        <div class="modal-row">
+          <div class="modal-field full">
+            <label>Envolvidos</label>
+            <p>${r.envolvido || '—'}</p>
+          </div>
+        </div>
+        <div class="modal-field full">
+          <label>Descrição</label>
+          <div class="modal-desc">${r.descricao || '—'}</div>
+        </div>
+        ${r.arquivos && r.arquivos.length > 0 ? `
+        <div class="modal-field full" style="margin-top:1rem">
+          <label>Evidências Anexadas</label>
+          <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem">
+            ${r.arquivos.map(a => `
+              <a href="${a.url || '#'}" target="_blank"
+                style="display:inline-flex;align-items:center;gap:6px;
+                  background:rgba(0,61,165,.07);border:1px solid rgba(0,61,165,.2);
+                  border-radius:8px;padding:5px 10px;font-size:.78rem;
+                  color:var(--azul);text-decoration:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  style="width:13px;height:13px">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                ${a.nome}
+              </a>`).join('')}
+          </div>
+        </div>` : ''}`;
+
+      document.getElementById('modal-status-select').value = r.status || 'pendente';
+      document.getElementById('modal-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function fecharModal(e) {
+      if (e.target === document.getElementById('modal-overlay')) fecharModalBtn();
+    }
+    function fecharModalBtn() {
+      document.getElementById('modal-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+      modalIndex = null;
+    }
+
+    async function salvarStatus() {
+      if (modalIndex === null) return;
+      const btn      = document.getElementById('modal-overlay').querySelector('.btn-save-status');
+      const novoSt   = document.getElementById('modal-status-select').value;
+      const report   = _todosReports[modalIndex];
+      const statusAnterior = report.status;
+
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
+
+      report.status = novoSt;
+      await dbSaveReports(_todosReports);
+
+      // Envia e-mail se status mudou
+      if (novoSt !== statusAnterior) {
+        enviarEmailAtualizacaoStatus(report, novoSt);
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+          <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/>
+          <polyline points="7 3 7 8 15 8"/>
+        </svg>
+        Salvar Status`;
+
+      fecharModalBtn();
+      renderTabela();
+    }
+
+    function enviarEmailAtualizacaoStatus(report, novoStatus) {
+      const statusTraduzido = { pendente: 'Pendente', em_analise: 'Em Análise', resolvido: 'Resolvido' };
+      const params = {
+        tipo_email:      `Atualização de Status — Denúncia #${report.id}`,
+        report_id:       report.id,
+        nome:            report.nome    || '—',
+        ra:              report.ra      || '—',
+        turma:           report.turma   || '—',
+        local:           report.local   || '—',
+        data_ocorrencia: fmtData(report.data_ocorrencia),
+        descricao:       report.descricao || '—',
+        envolvido:       report.envolvido || '—',
+        anonimo:         report.anonimo ? 'Sim' : 'Não',
+        status:          statusTraduzido[novoStatus] || novoStatus,
+        timestamp:       new Date().toLocaleString('pt-BR'),
+      };
+
+      // E-mail para a equipe pedagógica
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        ...params,
+        to_email: EMAIL_PEDAGOGICO,
+        to_name:  'Equipe Pedagógica SENAI',
+        email_aluno: report.email || '—',
+        reply_to: report.email || EMAIL_PEDAGOGICO,
+      }).then(() => console.log('Atualização enviada ao pedagógico'))
+        .catch(err => console.error('EmailJS status (pedagógico):', JSON.stringify(err)));
+
+      // E-mail para o aluno (se tiver e-mail e não for anônimo)
+      if (!report.anonimo && report.email) {
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONFIRMACAO, {
+          ...params,
+          email_aluno: report.email,
+          to_name:     report.nome || 'Aluno',
+        }).then(() => console.log('Atualização enviada ao aluno:', report.email))
+          .catch(err => console.error('EmailJS status (aluno):', JSON.stringify(err)));
+      }
+    }
+
+    function exportarCSV() {
+      const all = _todosReports;
+      const h = ['ID','Nome','RA','Turma','Email','Anônimo','Tipo','Local','Data','Descrição','Status'];
+      const rows = all.map(r => [r.id,r.nome||'',r.ra||'',r.turma||'',r.email||'',r.anonimo?'Sim':'Não',r.tipo_bullying||'',r.local||'',r.data_ocorrencia||'',r.descricao||'',r.status||''].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','));
+      const csv = [h.join(','),...rows].join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+      a.download = 'denuncias-senai-'+new Date().toISOString().split('T')[0]+'.csv';
+      a.click();
+    }
+
+    async function limparDados() {
+      if (!confirm('Tem certeza que deseja apagar TODAS as denúncias? Esta ação não pode ser desfeita.')) return;
+      _todosReports = [];
+      await dbSaveReports([]);
+      renderTabela();
+    }
+
+    // ══════════════════════════════════════════
+    // UPLOAD DE ARQUIVOS (Cloudinary)
+    // ══════════════════════════════════════════
+    // Para ativar: crie conta em cloudinary.com, vá em Settings > Upload Presets
+    // crie um preset "unsigned" e substitua os valores abaixo:
+    const CLOUDINARY_CLOUD = 'SEU_CLOUD_NAME';   // ex: 'dxyz123'
+    const CLOUDINARY_PRESET = 'SEU_UPLOAD_PRESET'; // ex: 'senai_bullying'
+
+    let arquivosUpload = []; // URLs dos arquivos enviados
+
+    function handleDrop(e) {
+      e.preventDefault();
+      document.getElementById('upload-area').style.borderColor = 'var(--cinza-borda)';
+      handleFiles(e.dataTransfer.files);
+    }
+
+    function handleFiles(files) {
+      const preview = document.getElementById('upload-preview');
+      preview.style.display = 'flex';
+      Array.from(files).forEach(file => {
+        if (file.size > 10 * 1024 * 1024) {
+          alert(`Arquivo "${file.name}" excede 10MB e foi ignorado.`);
+          return;
+        }
+        // Preview local
+        const tag = document.createElement('div');
+        tag.style.cssText = `display:flex;align-items:center;gap:6px;background:var(--cinza-claro);
+          border:1px solid var(--cinza-borda);border-radius:8px;padding:5px 10px;font-size:.78rem;`;
+        tag.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            style="width:13px;height:13px;color:var(--azul);flex-shrink:0">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <span style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            ${file.name}
+          </span>
+          <span id="status-${file.name.replace(/\W/g,'')}"
+            style="color:var(--cinza-medio);font-size:.7rem">Enviando...</span>`;
+        preview.appendChild(tag);
+        uploadCloudinary(file, tag.querySelector('span:last-child'));
+      });
+    }
+
+    async function uploadCloudinary(file, statusEl) {
+      // Se Cloudinary não estiver configurado, salva como base64 pequeno (só imagens pequenas)
+      if (CLOUDINARY_CLOUD === 'SEU_CLOUD_NAME') {
+        if (file.type.startsWith('image/') && file.size < 2 * 1024 * 1024) {
+          const reader = new FileReader();
+          reader.onload = e => {
+            arquivosUpload.push({ nome: file.name, url: e.target.result, tipo: file.type });
+            statusEl.textContent = '✓ Pronto';
+            statusEl.style.color = 'var(--sucesso)';
+          };
+          reader.readAsDataURL(file);
+        } else {
+          arquivosUpload.push({ nome: file.name, url: null, tipo: file.type });
+          statusEl.textContent = '✓ Registrado';
+          statusEl.style.color = 'var(--sucesso)';
+        }
+        return;
+      }
+
+      try {
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('upload_preset', CLOUDINARY_PRESET);
+        const res  = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`, {
+          method: 'POST', body: fd
+        });
+        const data = await res.json();
+        arquivosUpload.push({ nome: file.name, url: data.secure_url, tipo: file.type });
+        statusEl.textContent = '✓ Enviado';
+        statusEl.style.color = 'var(--sucesso)';
+      } catch(e) {
+        statusEl.textContent = '✗ Erro';
+        statusEl.style.color = 'var(--alerta)';
+      }
+    }
+  </script>
+</body>
+</html>
