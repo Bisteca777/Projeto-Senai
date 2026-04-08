@@ -2245,9 +2245,9 @@
       <div class="dashboard" id="dash-section">
         <div class="dash-grid" id="dash-cards"></div>
         <div class="charts-grid">
-          <div class="chart-box"><div class="chart-title">📊 Tipos de Bullying</div><canvas id="chart-tipos" height="200"></canvas></div>
-          <div class="chart-box"><div class="chart-title">📍 Locais de Ocorrência</div><canvas id="chart-locais" height="200"></canvas></div>
-          <div class="chart-box"><div class="chart-title">🔄 Status das Denúncias</div><canvas id="chart-status" height="200"></canvas></div>
+          <div class="chart-box"><div class="chart-title">Tipos de Bullying</div><canvas id="chart-tipos" height="200"></canvas></div>
+          <div class="chart-box"><div class="chart-title">Locais de Ocorrência</div><canvas id="chart-locais" height="200"></canvas></div>
+          <div class="chart-box"><div class="chart-title">Status das Denúncias</div><canvas id="chart-status" height="200"></canvas></div>
 
         </div>
       </div>
@@ -2377,7 +2377,7 @@
     const SENHA_PAINEL  = 'Senai@2026!';
 
     // JSONBin — banco de dados na nuvem
-    const JSONBIN_BIN_ID  = '69d143c5856a682189fc9320';
+    const JSONBIN_BIN_ID  = '69d6e09daaba882197da77bb';
     const JSONBIN_API_KEY = '$2a$10$K3umiXjDxJc.7/pRoimZPeKd4AsHd5NOCLIAzfIPBAepaQVGglrF2';
     const JSONBIN_URL     = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
@@ -2571,10 +2571,11 @@
 
       const cards = document.getElementById('dash-cards');
       if (!cards) return;
+      const emAnalise = reports.filter(r => r.status === 'em_analise').length;
       cards.innerHTML =
         `<div class="dash-card"><div class="dash-label">Total</div><div class="dash-value azul">${total}</div></div>` +
         `<div class="dash-card"><div class="dash-label">Pendentes</div><div class="dash-value laranja">${pendentes}</div></div>` +
-        `<div class="dash-card"><div class="dash-label">Urgência Alta</div><div class="dash-value vermelho">${alta}</div></div>` +
+        `<div class="dash-card"><div class="dash-label">Em Análise</div><div class="dash-value azul">${emAnalise}</div></div>` +
         `<div class="dash-card"><div class="dash-label">Resolvidas</div><div class="dash-value verde">${resolvidos}</div></div>`;
 
       const tipoMap = {verbal:'Verbal',fisico:'Físico',psicologico:'Psicológico',cyberbullying:'Cyberbullying',misto:'Misto'};
@@ -2793,7 +2794,7 @@
         document.getElementById('upload-preview').innerHTML = '';
         document.getElementById('arquivo-input').value = '';
 
-        showToast(`✅ Denúncia enviada! Protocolo: #${report.id}`);
+        showToast(`Denúncia enviada! Protocolo: #${report.id}`);
         setTimeout(() => { document.getElementById('protocolo-input').value = report.id; showPage('protocolo'); buscarProtocolo(); }, 3500);
       } catch(err) {
         console.error('Erro ao enviar:', err);
@@ -2845,7 +2846,7 @@
         reply_to:        report.email   || EMAIL_PEDAGOGICO,
       };
       emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
-        .then(() => console.log('📧 Alerta enviado à equipe pedagógica'))
+        .then(() => console.log('Alerta enviado à equipe pedagógica'))
         .catch(err => console.error('EmailJS erro:', JSON.stringify(err)));
     }
 
@@ -2863,7 +2864,7 @@
         timestamp:       new Date(report.timestamp).toLocaleString('pt-BR'),
       };
       emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONFIRMACAO, params)
-        .then(() => console.log('📧 Confirmação enviada para', emailDestino))
+        .then(() => console.log('Confirmação enviada para', emailDestino))
         .catch(err => console.error('EmailJS (confirmação) erro:', JSON.stringify(err)));
     }
 
@@ -3255,7 +3256,7 @@
         to_name:  'Equipe Pedagógica SENAI',
         email_aluno: report.email || '—',
         reply_to: report.email || EMAIL_PEDAGOGICO,
-      }).then(() => console.log('📧 Atualização enviada ao pedagógico'))
+      }).then(() => console.log('Atualização enviada ao pedagógico'))
         .catch(err => console.error('EmailJS status (pedagógico):', JSON.stringify(err)));
 
       // E-mail para o aluno (se tiver e-mail e não for anônimo)
@@ -3264,7 +3265,7 @@
           ...params,
           email_aluno: report.email,
           to_name:     report.nome || 'Aluno',
-        }).then(() => console.log('📧 Atualização enviada ao aluno:', report.email))
+        }).then(() => console.log('Atualização enviada ao aluno:', report.email))
           .catch(err => console.error('EmailJS status (aluno):', JSON.stringify(err)));
       }
     }
